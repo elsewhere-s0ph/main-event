@@ -81,7 +81,7 @@ export default function CareerSelect() {
                 maxLength={40}
               />
             </div>
-            <div className="field}>
+            <div className="field">
               <label htmlFor="seed">Seed (opzionale)</label>
               <input
                 id="seed"
