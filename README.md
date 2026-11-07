@@ -1,8 +1,9 @@
-# WRESTLING EMPIRE MANAGER — Documento Master
+# MAIN EVENT — Documento Master
 
-**Versione:** 2.0 — 7 novembre 2026
+**Versione:** 2.1 — 7 novembre 2026
+**Nome del prodotto:** **Main Event** (in fase di progettazione: "Wrestling Empire Manager")
 **Origine:** consolidamento di GDD 1.0 + TDD 1.0 + ADD 1.0, con le modifiche approvate in data 7 novembre 2026
-**Repo:** `elsewhere-s0ph/wrestling-game`
+**Repo:** `elsewhere-s0ph/main-event`
 **Stato:** progettazione completata · sviluppo non ancora iniziato
 
 > **Come usare questo documento.** È l'unica fonte di verità del progetto. Chi lavora al progetto — umano o AI — deve leggerlo prima di toccare il codice, e deve aggiornarlo quando una decisione cambia. GDD 1.0, TDD 1.0 e ADD 1.0 restano come riferimento storico, ma in caso di conflitto vince questo documento. Ogni cambiamento rilevante va registrato nel Registro decisioni (§13).
@@ -11,7 +12,7 @@
 
 # 1. Il progetto in una pagina
 
-Wrestling Empire Manager è un simulatore manageriale di wrestling: l'utente è proprietario e General Manager di una federazione e ne gestisce ogni aspetto — roster, contratti, campionati, booking, rivalità, storyline, eventi, finanze, pubblico e reputazione.
+Main Event è un simulatore manageriale di wrestling: l'utente è proprietario e General Manager di una federazione e ne gestisce ogni aspetto — roster, contratti, campionati, booking, rivalità, storyline, eventi, finanze, pubblico e reputazione.
 
 Il progetto offre due esperienze complementari:
 
@@ -79,7 +80,7 @@ Regola d'oro: **la simulazione non dipende dalla velocità di rendering**. Il si
 ## 3.3 Struttura del progetto
 
 ```text
-wrestling-game/
+main-event/
 ├── public/assets/{wrestlers,rings,arenas,effects,ui,audio}
 ├── src/
 │   ├── app/            (App, router, providers)
@@ -347,3 +348,4 @@ App installabile come PWA · funziona su PC e smartphone · utilizzabile offline
 | 07/11/2026 | UI solo italiana al lancio | coerenza con Pitchtory; landing bilingue solo se serve |
 | 07/11/2026 | Roadmap riordinata: prototipo (C2) prima del gestionale | dimostrare prima il sistema distintivo del progetto |
 | 07/11/2026 | Registro "app" per lo studio | posizionamento Little Elsewhere |
+| 07/11/2026 | PWA e repo rinominate: **Main Event** (`elsewhere-s0ph/main-event`); "Wrestling Empire Manager" resta solo come riferimento storico della progettazione | nome breve, memorabile, allineato alla repo |
