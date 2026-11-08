@@ -70,7 +70,7 @@ export function simulateMatch(
     damage: number,
     durMs: number,
     text: string,
-    gap = DUR.gap
+    gap: number = DUR.gap
   ) => {
     events.push({
       id: nextId++,
@@ -146,7 +146,9 @@ export function simulateMatch(
         0
       );
       push("knockdown", target, "", 0, DUR.knockdown, `${def.name} resta giù: il mat trema.`, 0);
-      const winProb = 0.9 - energy[target] * 0.008;
+      // Vittoria credibile: solo se il finisher ha davvero piegato l'avversario
+      // (energia ≤ 18). Se no, kickout e il match continua: niente vittorie a fondo di energia.
+      const winProb = energy[target] <= 18 ? 0.9 - energy[target] * 0.008 : 0;
       if (rng() < winProb) {
         push("pin", actor, "", 0, DUR.pin, `Copertura: uno… due… TRE! Il match è di ${att.name}.`, 0);
         push("win", actor, "", 0, DUR.win, `${att.name} alza le braccia al soffitto dell'arena.`);
@@ -191,7 +193,9 @@ export function simulateMatch(
       push("knockdown", target, "", 0, DUR.knockdown, `${def.name} finisce al tappeto.`, 0);
       if (rng() < 0.65) {
         push("pin", actor, "", 0, DUR.pin, `${att.name} va alla copertura: uno… due…`, 0);
-        const winProb = 1 - (0.15 + energy[target] * 0.008);
+        // Schienamento vincente solo su un avversario davvero a pezzi (< 25):
+        // i colpi forti abbattono, ma non chiudono da soli l'incontro.
+        const winProb = energy[target] < 25 ? 1 - (0.15 + energy[target] * 0.008) : 0;
         if (rng() < winProb) {
           push("win", actor, "", 0, DUR.win, `Tre! ${att.name} chiude l'incontro.`);
           return finalize(actor);
