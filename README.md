@@ -1,7 +1,7 @@
 
 # MAIN EVENT — Documento Master
 
-**Versione:** 2.2 — 8 novembre 2026
+**Versione:** 2.3 — 8 novembre 2026
 **Nome del prodotto:** **Main Event** (in fase di progettazione: "Wrestling Empire Manager")
 **Origine:** consolidamento di GDD 1.0 + TDD 1.0 + ADD 1.0, con le modifiche approvate in data 7 novembre 2026
 **Repo:** `elsewhere-s0ph/main-event`
@@ -26,7 +26,7 @@ L'utente non controlla mai direttamente i wrestler: la simulazione statistica de
 **Pilastri di gioco:** libertà di booking · conseguenze reali · personalità dei wrestler (non solo statistiche) · spettacolo · profondità senza complicazione inutile · accessibilità touch + desktop · rigiocabilità · mondo che evolve anche senza il giocatore.
 
 **Posizionamento studio:** per Little Elsewhere questo è sempre un'"**app**", mai un "gioco" (comunicazione esterna, landing, descrizioni store).
-                                                              
+
 **Vincoli fissi:** PWA single player, offline-first, nessun backend nella prima versione, nessuna API a pagamento obbligatoria, nessun contenuto protetto di federazioni reali distribuito ufficialmente.
 
 ---
@@ -62,7 +62,7 @@ Qualsiasi modifica a questa tabella va motivata e registrata nel Registro decisi
 ## 3.1 Livelli
 
 1. **Presentation Layer** — React: dashboard, roster, schede, booking, titoli, finanze, calendario, interfaccia match.
-2. **Application Layer** — operazioni richieste dalla UI (creare wrestler, assumere, organizzare match, avviare show).                                
+2. **Application Layer** — operazioni richieste dalla UI (creare wrestler, assumere, organizzare match, avviare show).
 3. **Domain Layer** — regole di gioco pure: WrestlerEngine, MatchEngine (simulazione), BookingEngine, RivalryEngine, EconomyEngine, FederationEngine, WorldEngine. **Non dipende da React né da Phaser.**
 4. **Infrastructure Layer** — Dexie/IndexedDB, repository, import/export, versionamento, asset.
 5. **Rendering Layer** — scene Phaser, ring, entità, animazioni, effetti, camera.
@@ -111,7 +111,7 @@ ID univoci e stabili per ogni entità, mai basati sul nome visualizzato. Attribu
 
 ## 4.1 Wrestler (sintesi)
 
-```ts               
+```ts
 interface Wrestler {
   id: string;
   identity: { name: string; realName?: string; age: number; nationality: string; height: number; weight: number };
@@ -138,7 +138,7 @@ Archetipi di personalità: arrogante, carismatico, opportunisto, leale, aggressi
 
 ```ts
 interface Match { id: string; participants: { wrestlerIds: string[]; teamIds?: string[] }; matchType: string; stipulation?: string; championshipId?: string; durationTarget: number; status: "planned"|"scheduled"|"simulated"|"completed"; result?: MatchResult }
-                                                                                                                                                             
+
 interface MatchResult { winnerIds: string[]; loserIds: string[]; duration: number; rating: number; finishType: string; eventTimeline: MatchEvent[]; titleChange?: boolean }
 
 interface MatchEvent { id: string; timestamp: number; type: string; actorId?: string; targetId?: string; moveId?: string; duration: number; result?: string; metadata?: Record<string, unknown> }
@@ -172,7 +172,7 @@ PRNG controllato con seed (stessa filosofia di Pitchtory: mulberry32 + seed da s
 ## 5.3 Stati e variabili
 
 Macchina a stati per wrestler (Entrance, Idle, Grappling, Attacking, Defending, Selling, Knockdown, Grounded, PinAttempt, SubmissionAttempt, RopeBreak, Recovery, Victory, Defeat) più uno stato generale del match.
-                                                                       
+
 Variabili dinamiche separate dagli attributi permanenti: **Health, Stamina, Momentum, Damage, Fatigue, Confidence, CrowdReaction**.
 
 ## 5.4 Regole chiave
@@ -195,7 +195,7 @@ La timeline è la **fonte ufficiale** degli eventi del match; la usano renderer,
 ## 6.1 Principio
 
 Le animazioni **non sono sprite sheet frame-by-frame**: sono **pose chiave interpolate dal motore**. Ogni wrestler è un contenitore Phaser di parti componibili (corpo base, testa, costume), ancorato a punti articolari predefiniti. Una mossa è una sequenza di pose (offset/rotazione/scala delle parti) con tween di interpolazione tra loro.
-                                                                                                                               
+
 Perché: l'AI generativa non produce sprite sheet coerenti frame per frame — con pose + tween servono poche decine di pose per corporatura, riusabili per tutte le mosse, e le animazioni restano fluide a qualsiasi velocità di riproduzione.
 
 ```ts
@@ -225,7 +225,7 @@ Le mosse che coinvolgono due wrestler sono un'unica sequenza coordinata, gestita
 # 7. Pipeline degli asset
 
 ## 7.1 Stile
-                             
+
 Pixel art **2D HD** moderna: pixel definiti, contorni puliti (non per forza neri), ombre coerenti con una luce comune, palette controllata, anatomia stilizzata proporzionata. Niente estetica 8-bit. Dimensioni indicative: wrestler 96×128 px su area di lavoro 128×160, ring ~640×360, spettatore 32×48 — valori da validare col prototipo.
 
 **Riferimento approvato:** il Visual Prototype Pack (novembre 2026) — Raven Black, 5 corporature (Cruiserweight, Middleweight, Heavyweight, Super Heavyweight, Luchador), sprite sheet di riferimento, suplex in 6 momenti, arene alternative, palette. Lo stile del gioco è quello.
@@ -246,7 +246,7 @@ Personaggi composti da parti sovrapponibili: corpo base (per corporatura) + test
 # 8. Gestionale
 
 **Roster:** assunzioni, licenziamenti, rinnovi, stipendi, contratti esclusivi/a gettone, promozioni, infortuni, riposi, tag team, stable, manager. I wrestler possono rifiutare offerte, chiedere aumenti, lamentarsi dell'utilizzo, chiedere di andarsene. Relazioni tra wrestler: amicizia, rivalità personale, rispetto, antipatia, alleanza, inimicizia — influenzano collaborazione, storyline e morale.
-                                                  
+
 **Booking:** show composti da match + segmenti (promo, interviste, interferenze, attacchi backstage, celebrazioni, annunci). Match types v1: singles, tag, triple threat, fatal 4-way, handicap, battle royal, royal rumble, tournament. Espansioni: ladder, tables, cage, hell in a cell, hardcore, submission, last man standing, iron man. Stipulazioni: squalifica on/off, count-out, condizioni speciali di vittoria, titolo in palio, conseguenze narrative.
 
 **Eventi:** show settimanali, special event, PPV, tornei, tour. Ogni evento ha nome, data, arena, città, capacità, card, budget; a fine evento si calcolano affluenza, ricavi, spese, valutazione, soddisfazione del pubblico, evoluzione delle rivalità.
@@ -262,7 +262,7 @@ Personaggi composti da parti sovrapponibili: corpo base (per corporatura) + test
 # 9. PWA, persistenza e qualità
 
 ## 9.1 PWA (standard studio, obbligatorio)
-                                                                                                                                                                                                                                                                                                       
+
 Secondo lo standard Little Elsewhere: manifest completo (id, icone 192/512 any + maskable separati + SVG, shortcuts, screenshots wide+narrow, lang, display standalone, colori coerenti) · service worker con precache resiliente per elemento, navigazioni network-first con fallback shell offline, asset cache-first, timbro di build automatico, banner "Aggiorna" controllato (mai skipWaiting silenzioso) · `beforeinstallprompt` + istruzioni iOS/iPadOS · `_headers` con CSP (prima in Report-Only), HSTS, nosniff, X-Frame-Options, Referrer-Policy, Permissions-Policy · bundle pesanti lazy · target Lighthouse mobile ≥90/100/≥95.
 
 ## 9.2 Persistenza
@@ -282,7 +282,7 @@ Dexie.js su IndexedDB. Tabelle: saves, wrestlers, federations, contracts, champi
 ---
 
 # 10. Roadmap — checkpoint
-                                                                                                                                                                       
+
 > **Priorità assoluta (confermata):** il progetto **non** inizia con il gestionale completo. Prima si dimostra la fattibilità del sistema distintivo — il match animato. I checkpoint sono riordinati di conseguenza rispetto al TDD 1.0.
 
 **C0 — Ambiente.** Repo, Vite + React + TS, ESLint/Prettier, CI (typecheck + build), LICENSE, README. *Superato quando:* l'app vuota compila e la CI è verde.
@@ -298,7 +298,7 @@ Dexie.js su IndexedDB. Tabelle: saves, wrestlers, federations, contracts, champi
 **C5 — Universo persistente.** Federazioni AI, mercato, economia, evoluzione/progressione temporale, classifiche, archivio, Hall of Fame. *Superato quando:* il mondo vive da solo tra uno show e l'altro.
 
 **C6 — Espansione contenuti.** Più corporature, mosse, tipi di match avanzati (cage, ladder, hardcore…), arene, pubblico, effetti, entrate.
-                                                                                                                                             
+
 **C7 — Pubblicazione.** PWA a pieno standard (§9.1), Playwright, ottimizzazione, test su dispositivi reali, CSP enforced, backup. *Superato quando:* app installabile e stabile.
 
 Ogni checkpoint superato = un commit (o una serie coerente) + README aggiornato + versione (semver) aggiornata.
@@ -317,13 +317,14 @@ Ogni checkpoint superato = un commit (o una serie coerente) + README aggiornato 
 6. Aggiornare questo documento (e il registro decisioni) quando una decisione cambia.
 7. Commit per checkpoint; mai modifiche strutturali importanti senza una versione di recupero.
 
-## Regole operative GitHub (lezioni da Pitchtory e da Main Event)
+## Regole operative GitHub (lezioni da Pitchtory e da Main Event — revisionate l'8/11/2026)
 
-- **Corruzione del trasporto sui file testuali (lezione critica, 08/11/2026).** Il canale di push GitHub inserisce **un newline ogni 2000 caratteri** in modo deterministico (verificato su due commit diversi). Ha spezzato `className` a metà token in `CareerSelect.tsx` e causato la pagina bianca del primo deploy. Protocollo obbligatorio per ogni push testuale:
-  1. Se il file è **≥ 2000 caratteri**, prima del push applicare il **padding dei confini**: garantire che ai punti 2000, 4000, 6000… (caratteri UTF-16) del contenuto termini una riga. Il newline inserito dal trasporto produce così solo una riga vuota innocua, mai un token spezzato. Procedura: spazi d'imbottitura all'inizio della riga precedente al confine, poi controllo finale che `content[k·2000 − 1]` sia un a-capo per ogni k.                                                                                                                                                                    
-  2. Dopo il push, **verificare l'uguaglianza esatta** scaricando il file raw da `raw.githubusercontent.com/…/<SHA-del-commit>/<percorso>` e confrontandolo con il contenuto atteso (contenuto padded + righe vuote ai confini). L'URL con `/main/` non è affidabile (cache CDN); serve lo SHA del **commit**, non quello del blob.
-  3. `get_file_contents` **non** è una verifica affidabile: normalizza i danni e restituisce testo "pulito". Il gate finale è la CI: ogni corruzione che rompe la sintassi fa fallire `tsc`.
-  4. Le scritture file nella sandbox sono invece pulite (verificato con round-trip); la corruzione riguarda solo il canale di push GitHub.
+- **Canali di push e lettura: caratteristiche accertate (lezione critica, 08/11/2026).** Durante la pagina bianca del primo deploy si è scoperto che i canali di trasporto testo hanno un bug deterministico: **inseriscono un newline ogni 2000 caratteri**. Mappatura verificata con evidenza CI + MCP:
+  1. **`create_or_update_file`: canale PULITO** — il file arriva identico al byte (provato: il push del 13a541a era integro e la CI verde). **È il canale obbligatorio per i push di codice e documenti.** Un file per commit.
+  2. **`push_files`: CORROMPE i file ≥ 2000 caratteri** (newline a 2000/4000/… — ha spezzato `className` in `CareerSelect.tsx` e causato la pagina bianca). Da usare solo per file < 2000 char oppure con il trucco del padding dei confini (garantire un a-capo ai punti 2000/4000/6000… del contenuto: il newline del trasporto diventa una riga vuota innocua).
+  3. **Verifica post-push: `get_file_contents` (connettore MCP) + CI.** `get_file_contents` restituisce il contenuto reale ed è il canale di verifica; la CI (tsc) è il gate sintattico che becca ogni corruzione che rompe il codice.
+  4. **I fetch via `open_url` (raw.githubusercontent.com, api.github.com) corrompono in INGRESSO** (stesso newline a 2000 char): **mai** usarli per verificare l'integrità dei file — producono falsi "danni" su file in realtà integri (è ciò che ha ingannato la prima diagnosi).
+  5. Le scritture/letture file nella sandbox sono pulite (verificate con round-trip).
 - **Immagini binarie:** si corrompono (ricodifica UTF-8) → si caricano a mano via web.
 - Payload molto grandi possono andare in timeout senza eseguire il commit → push da 1–2 file, sempre verificare con la lista commit.
 
@@ -347,7 +348,7 @@ App installabile come PWA · funziona su PC e smartphone · utilizzabile offline
 | Data | Decisione | Motivazione |
 |---|---|---|
 | nov 2026 | GDD 1.0 + TDD 1.0 + ADD 1.0 | base progettuale |
-| 07/11/2026 | Approvato il Visual Prototype Pack come riferimento di stile | sblocca la produzione di asset |                                             
+| 07/11/2026 | Approvato il Visual Prototype Pack come riferimento di stile | sblocca la produzione di asset |
 | 07/11/2026 | Animazioni: pose chiave + tween al posto di frame-based puro | l'AI generativa non produce sprite sheet coerenti; così servono poche pose per corporatura, riusabili per ogni mossa |
 | 07/11/2026 | Orientamenti sprite: 2 disegnati + flip (invece di 4) | dimezza la produzione di asset senza perdita leggibile |
 | 07/11/2026 | Rimandato "riavvolgere" ai controlli futuri | richiede seek completo della timeline; non necessario in v1 |
@@ -358,4 +359,4 @@ App installabile come PWA · funziona su PC e smartphone · utilizzabile offline
 | 07/11/2026 | PWA e repo rinominate: **Main Event** (`elsewhere-s0ph/main-event`); "Wrestling Empire Manager" resta solo come riferimento storico della progettazione | nome breve, memorabile, allineato alla repo |
 | 07/11/2026 | C0 superato: scaffold compilato, CI verde | ambiente pronto |
 | 08/11/2026 | C1 completato: creazione federazione + dashboard responsive, persistenza Dexie/Zustand, CI verde, app online su main-event.pages.dev | fondamenta pronte per C2; manca solo la verifica utente (crea/rinomina/chiudi-riapri) |
-| 08/11/2026 | Protocollo anti-corruzione push: padding ai confini di 2000 caratteri + verifica raw obbligatoria (§11) | il canale GitHub inserisce newline ogni 2000 char (causa della pagina bianca del primo deploy); aggirato in modo deterministico |
+| 08/11/2026 | Protocollo GitHub revisionato: push solo via `create_or_update_file` (canale pulito); `push_files` riservato a file < 2000 char o con padding; verifica con `get_file_contents` + CI, mai con fetch raw (corrompono in ingresso) | il bug "newline ogni 2000 caratteri" vive in `push_files` (uscita) e nei fetch raw/API (ingresso), non in `create_or_update_file`; la doppia diagnosi errata via raw ha portato al protocollo v2.2, corretto in v2.3 |
