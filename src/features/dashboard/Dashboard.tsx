@@ -102,12 +102,14 @@ export default function Dashboard() {
         </section>
 
         <section className={styles.card}>
-          <h2>Prossimo passo</h2>
+          <h2>Il motore (demo)</h2>
           <p className={styles.muted}>
-            Le fondamenta ci sono: la tua federazione esiste, viene salvata e la ritrovi quando
-            torni. Al prossimo checkpoint costruiamo il cuore dell&apos;app: il ring isometrico e
-            il primo match animato.
+            Il prototipo del motore è pronto: due wrestler sul ring isometrico, un incontro
+            che si anima da solo. Stesso seed, identico spettacolo.
           </p>
+          <Link to="/match" className="btn btn-primary">
+            Guarda il match dimostrativo
+          </Link>
         </section>
       </div>
     </div>
