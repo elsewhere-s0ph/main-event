@@ -2,6 +2,28 @@ import { describe, expect, it } from "vitest";
 import { simulateMatch } from "./matchEngine";
 import { DEMO_WRESTLERS } from "./demoRoster";
 
+// Gli invarianti valgono per OGNI seed, non solo per uno fortunato:
+// il motore è deterministico, quindi i seed qui sotto coprono per sempre.
+const MANY_SEEDS = [
+  "energia",
+  "demo",
+  "demo-a",
+  "demo-b",
+  "timeline",
+  "pin",
+  "cap",
+  "1",
+  "2",
+  "3",
+  "4",
+  "5",
+  "6",
+  "7",
+  "8",
+  "9",
+  "10",
+];
+
 describe("simulateMatch", () => {
   it("è deterministica: stesso seed, identico incontro", () => {
     const a = simulateMatch(DEMO_WRESTLERS, "demo");
@@ -16,7 +38,7 @@ describe("simulateMatch", () => {
   });
 
   it("termina sempre con un vincitore e chiude con l'evento 'win'", () => {
-    for (const seed of ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"]) {
+    for (const seed of MANY_SEEDS) {
       const r = simulateMatch(DEMO_WRESTLERS, seed);
       expect(r.winner === 0 || r.winner === 1).toBe(true);
       const last = r.events[r.events.length - 1];
@@ -25,43 +47,51 @@ describe("simulateMatch", () => {
     }
   });
 
-  it("produce una timeline ordinata e coerente", () => {
-    const r = simulateMatch(DEMO_WRESTLERS, "timeline");
-    let prevT = -1;
-    for (const e of r.events) {
-      expect(e.t).toBeGreaterThan(prevT);
-      expect(e.durMs).toBeGreaterThan(0);
-      prevT = e.t;
+  it("produce una timeline ordinata e coerente, su molti seed", () => {
+    for (const seed of MANY_SEEDS) {
+      const r = simulateMatch(DEMO_WRESTLERS, seed);
+      let prevT = -1;
+      for (const e of r.events) {
+        expect(e.t).toBeGreaterThan(prevT);
+        expect(e.durMs).toBeGreaterThan(0);
+        prevT = e.t;
+      }
+      const last = r.events[r.events.length - 1];
+      expect(r.durationMs).toBeGreaterThanOrEqual((last?.t ?? 0) + (last?.durMs ?? 0));
     }
-    const last = r.events[r.events.length - 1];
-    expect(r.durationMs).toBeGreaterThanOrEqual((last?.t ?? 0) + (last?.durMs ?? 0));
   });
 
-  it("l'energia resta in [0, 100] e chi perde è a pezzi", () => {
-    const r = simulateMatch(DEMO_WRESTLERS, "energia");
-    for (const e of r.events) {
-      for (const v of e.energyAfter) {
-        expect(v).toBeGreaterThanOrEqual(0);
-        expect(v).toBeLessThanOrEqual(100);
+  it("l'energia resta in [0, 100] e chi perde è a pezzi, su molti seed", () => {
+    for (const seed of MANY_SEEDS) {
+      const r = simulateMatch(DEMO_WRESTLERS, seed);
+      for (const e of r.events) {
+        for (const v of e.energyAfter) {
+          expect(v).toBeGreaterThanOrEqual(0);
+          expect(v).toBeLessThanOrEqual(100);
+        }
+      }
+      const last = r.events[r.events.length - 1];
+      const loser = r.winner === 0 ? 1 : 0;
+      expect((last?.energyAfter ?? [100, 100])[loser]).toBeLessThanOrEqual(30);
+    }
+  });
+
+  it("dopo uno schienamento c'è kickout o vittoria, su molti seed", () => {
+    for (const seed of MANY_SEEDS) {
+      const r = simulateMatch(DEMO_WRESTLERS, seed);
+      for (let i = 0; i < r.events.length; i++) {
+        if (r.events[i]?.kind === "pin") {
+          const next = r.events[i + 1];
+          expect(next?.kind === "kickout" || next?.kind === "win").toBe(true);
+        }
       }
     }
-    const last = r.events[r.events.length - 1];
-    const loser = r.winner === 0 ? 1 : 0;
-    expect((last?.energyAfter ?? [100, 100])[loser]).toBeLessThanOrEqual(30);
   });
 
-  it("dopo uno schienamento c'è kickout o vittoria", () => {
-    const r = simulateMatch(DEMO_WRESTLERS, "pin");
-    for (let i = 0; i < r.events.length; i++) {
-      if (r.events[i]?.kind === "pin") {
-        const next = r.events[i + 1];
-        expect(next?.kind === "kickout" || next?.kind === "win").toBe(true);
-      }
+  it("il numero di eventi resta contenuto, su molti seed", () => {
+    for (const seed of MANY_SEEDS) {
+      const r = simulateMatch(DEMO_WRESTLERS, seed);
+      expect(r.events.length).toBeLessThan(200);
     }
-  });
-
-  it("il numero di eventi resta contenuto", () => {
-    const r = simulateMatch(DEMO_WRESTLERS, "cap");
-    expect(r.events.length).toBeLessThan(200);
   });
 });
