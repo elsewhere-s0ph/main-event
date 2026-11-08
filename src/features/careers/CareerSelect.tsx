@@ -110,7 +110,7 @@ export default function CareerSelect() {
           <p className={styles.muted}>Nessuna federazione, per ora. La prima è a un passo.</p>
         )}
         <ul className={styles.cards}>
-                                           {careers.map((c) => (
+          {careers.map((c) => (
             <li key={c.saveId} className={styles.card}>
               <div>
                 <h3 className={styles.cardTitle}>{c.federationName}</h3>
