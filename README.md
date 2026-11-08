@@ -1,12 +1,12 @@
 
 # MAIN EVENT — Documento Master
 
-**Versione:** 2.3 — 8 novembre 2026
+**Versione:** 2.4 — 8 novembre 2026
 **Nome del prodotto:** **Main Event** (in fase di progettazione: "Wrestling Empire Manager")
 **Origine:** consolidamento di GDD 1.0 + TDD 1.0 + ADD 1.0, con le modifiche approvate in data 7 novembre 2026
 **Repo:** `elsewhere-s0ph/main-event`
 **Deploy:** https://main-event.pages.dev/
-**Stato:** sviluppo in corso — C0 superato · C1 completato (CI verde, app online) · verifica utente in corso
+**Stato:** sviluppo in corso — C0 superato · C1 superato (verificato dall’utente) · C2 completato (CI verde, demo /match online) · verifica utente in corso
 
 > **Come usare questo documento.** È l'unica fonte di verità del progetto. Chi lavora al progetto — umano o AI — deve leggerlo prima di toccare il codice, e deve aggiornarlo quando una decisione cambia. GDD 1.0, TDD 1.0 e ADD 1.0 restano come riferimento storico, ma in caso di conflitto vince questo documento. Ogni cambiamento rilevante va registrato nel Registro decisioni (§13).
 
@@ -360,3 +360,7 @@ App installabile come PWA · funziona su PC e smartphone · utilizzabile offline
 | 07/11/2026 | C0 superato: scaffold compilato, CI verde | ambiente pronto |
 | 08/11/2026 | C1 completato: creazione federazione + dashboard responsive, persistenza Dexie/Zustand, CI verde, app online su main-event.pages.dev | fondamenta pronte per C2; manca solo la verifica utente (crea/rinomina/chiudi-riapri) |
 | 08/11/2026 | Protocollo GitHub revisionato: push solo via `create_or_update_file` (canale pulito); `push_files` riservato a file < 2000 char o con padding; verifica con `get_file_contents` + CI, mai con fetch raw (corrompono in ingresso) | il bug "newline ogni 2000 caratteri" vive in `push_files` (uscita) e nei fetch raw/API (ingresso), non in `create_or_update_file`; la doppia diagnosi errata via raw ha portato al protocollo v2.2, corretto in v2.3 |
+| 08/11/2026 | C1 superato: verifica utente andata a buon fine su main-event.pages.dev (creazione federazione, persistenza dopo chiusura della tab) | fondamenta confermate, si passa al prototipo del motore |
+| 08/11/2026 | C2 completato: motore di incontro deterministico (mulberry32 seminato, timeline di eventi), ring isometrico su Canvas 2D, animazioni pose+tween, demo su /match (seed via ?seed=), v0.2.0 | prototipo pronto per la verifica utente su desktop e smartphone |
+| 08/11/2026 | Correzioni nate dalla prima CI rossa di C2: (1) i valori `as const` nei parametri default di funzione generano tipi letterali — `gap: number = DUR.gap` invece di `gap = DUR.gap`; (2) schienamento vincente solo su avversario davvero piegato (energia <= 18 endgame, < 25 flusso normale) — niente vittorie con lo sconfitto fresco; invarianti del motore ora verificati in CI su 17 seed | tsc strict come gate + test deterministici su molti seed: le regressioni del motore non passano più |
+| 08/11/2026 | Prototipo C2 realizzato con Canvas 2D puro (niente Phaser): scena logica 480×300, scheletri a stecche con proporzioni per corporatura, corde disegnate in due livelli (dietro/davanti ai wrestler) | misurare prima sul prototipo: se Canvas regge anche con pubblico ed effetti, valutare la promozione a decisione vincolante; Phaser resta l’opzione per scene complesse |
