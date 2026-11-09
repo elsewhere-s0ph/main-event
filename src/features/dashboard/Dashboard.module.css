@@ -74,6 +74,28 @@
   color: var(--muted);
 }
 
+.rosterList {
+  list-style: none;
+  margin: 0 0 12px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.rosterList li {
+  padding: 8px 0;
+  border-bottom: 1px solid var(--surface-2);
+  font-size: 0.92rem;
+}
+
+.rosterList li:last-child {
+  border-bottom: none;
+}
+
+.rosterList .tag {
+  color: var(--muted);
+}
+
 @media (min-width: 720px) {
   .grid {
     grid-template-columns: 1fr 1fr;
