@@ -1,9 +1,11 @@
 import { create } from "zustand";
 import * as repo from "../data/repositories/careerRepository";
+import * as rosterRepo from "../data/repositories/rosterRepository";
 import type { Career } from "../game/types/career";
+import type { Wrestler } from "../game/types/roster";
 
 // Stato globale dell'interfaccia (Zustand). Non contiene lo stato della
-// simulazione: quella vivrà nei motori di gioco (Documento Master §2).
+// simulazione: quella vive nei motori di gioco (Documento Master §2).
 
 export interface CareerResult {
   career: Career | null;
@@ -13,6 +15,7 @@ export interface CareerResult {
 interface CareerStore {
   careers: Career[];
   current: Career | null;
+  roster: Wrestler[];
   loading: boolean;
   refresh: () => Promise<void>;
   create: (input: { federationName: string; gmName: string; seed: string }) => Promise<CareerResult>;
@@ -24,6 +27,7 @@ interface CareerStore {
 export const useCareerStore = create<CareerStore>((set, get) => ({
   careers: [],
   current: null,
+  roster: [],
   loading: false,
 
   refresh: async () => {
@@ -36,6 +40,8 @@ export const useCareerStore = create<CareerStore>((set, get) => ({
     const res = await repo.createCareer(input);
     if (!res.career) return res;
     set({ current: res.career });
+    const roster = await rosterRepo.ensureRoster(res.career);
+    set({ roster });
     await get().refresh();
     return { career: res.career, error: null };
   },
@@ -43,7 +49,13 @@ export const useCareerStore = create<CareerStore>((set, get) => ({
   open: async (saveId) => {
     const career = await repo.getCareer(saveId);
     set({ current: career ?? null });
-    return career ?? null;
+    if (!career) {
+      set({ roster: [] });
+      return null;
+    }
+    const roster = await rosterRepo.ensureRoster(career);
+    set({ roster });
+    return career;
   },
 
   rename: async (saveId, name) => {
@@ -57,7 +69,7 @@ export const useCareerStore = create<CareerStore>((set, get) => ({
 
   remove: async (saveId) => {
     await repo.deleteCareer(saveId);
-    if (get().current?.saveId === saveId) set({ current: null });
+    if (get().current?.saveId === saveId) set({ current: null, roster: [] });
     await get().refresh();
   },
 }));
