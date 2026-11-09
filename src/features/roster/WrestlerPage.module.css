@@ -1,0 +1,222 @@
+.page {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 24px 16px 48px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.header h1 {
+  margin: 8px 0 2px;
+  font-size: clamp(1.6rem, 6vw, 2.2rem);
+  letter-spacing: -0.02em;
+}
+
+.back {
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+
+.back:hover {
+  color: var(--gold);
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--surface-2);
+  border-radius: var(--radius);
+  padding: 20px;
+}
+
+.card h2 {
+  margin: 0 0 12px;
+  font-size: 1.05rem;
+}
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.row2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.fieldText {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.fieldText label,
+.labelText {
+  font-size: 0.8rem;
+  color: var(--muted);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.fieldText textarea {
+  background: var(--surface);
+  border: 1px solid var(--surface-2);
+  color: var(--text);
+  border-radius: 10px;
+  padding: 10px 12px;
+  font: inherit;
+  width: 100%;
+  resize: vertical;
+  min-height: 56px;
+}
+
+.fieldText textarea:focus {
+  outline: 2px solid var(--gold);
+  outline-offset: -1px;
+}
+
+.segmented {
+  display: flex;
+  border: 1px solid var(--surface-2);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.segmented button {
+  flex: 1;
+  background: var(--surface);
+  color: var(--muted);
+  border: none;
+  padding: 10px 8px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.segmented button + button {
+  border-left: 1px solid var(--surface-2);
+}
+
+.segmented button.active {
+  background: var(--gold);
+  color: #1a1405;
+}
+
+.statRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.statLabel {
+  flex: 0 0 84px;
+  font-size: 0.9rem;
+}
+
+.statBar {
+  flex: 1;
+  display: flex;
+  gap: 3px;
+  height: 12px;
+}
+
+.statBar span {
+  flex: 1;
+  border-radius: 2px;
+  background: var(--surface-2);
+}
+
+.statBar span.on {
+  background: var(--teal);
+}
+
+.statValue {
+  width: 2ch;
+  text-align: center;
+  font-weight: 700;
+}
+
+.stepBtn {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  border: 1px solid var(--surface-2);
+  background: var(--surface);
+  color: var(--text);
+  font-size: 1.1rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.stepBtn:active:not(:disabled) {
+  transform: scale(0.94);
+}
+
+.stepBtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.colorRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.colorRow input[type="color"] {
+  width: 46px;
+  height: 34px;
+  padding: 2px;
+  border: 1px solid var(--surface-2);
+  border-radius: 8px;
+  background: var(--surface);
+  cursor: pointer;
+}
+
+.colorRow label {
+  font-size: 0.85rem;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.dl {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 6px 16px;
+  margin: 0 0 12px;
+  font-size: 0.92rem;
+}
+
+.dl dt {
+  color: var(--muted);
+}
+
+.dl dd {
+  margin: 0;
+}
+
+.muted {
+  color: var(--muted);
+  margin: 0;
+}
+
+.feedback {
+  color: var(--teal);
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+.error {
+  color: var(--danger);
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+.saveRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
