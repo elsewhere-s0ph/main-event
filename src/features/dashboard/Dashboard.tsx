@@ -115,16 +115,18 @@ export default function Dashboard() {
           <ul className={styles.rosterList}>
             {roster.map((w) => (
               <li key={w.id}>
-                <strong>{w.name}</strong> — {w.nickname}{" "}
-                <span className={styles.tag}>
-                  · {alignmentLabel(w.alignment)} · {bodyTypeLabel(w.bodyType)}
-                </span>
+                <Link className={styles.rosterLink} to={`/career/${saveId}/wrestler/${w.id}`}>
+                  <strong>{w.name}</strong> — {w.nickname}{" "}
+                  <span className={styles.tag}>
+                    · {alignmentLabel(w.alignment)} · {bodyTypeLabel(w.bodyType)}
+                  </span>
+                </Link>
               </li>
             ))}
           </ul>
           <p className={styles.muted}>
-            Il roster nasce dal seed della federazione: stesso seed, stessi atleti. Schede
-            complete, contratti e titoli arrivano nei prossimi passi.
+            Il roster nasce dal seed della federazione: stesso seed, stessi atleti. Tocca un
+            atleta per aprire la sua scheda.
           </p>
         </section>
 
