@@ -9,9 +9,18 @@ function formatDate(iso: string): string {
   );
 }
 
+function bodyTypeLabel(bodyType: string): string {
+  return bodyType === "heavyweight" ? "pesi massimi" : "pesi leggeri";
+}
+
+function alignmentLabel(alignment: string): string {
+  return alignment === "face" ? "beniamino" : "cattivo";
+}
+
 export default function Dashboard() {
   const { saveId } = useParams();
   const current = useCareerStore((s) => s.current);
+  const roster = useCareerStore((s) => s.roster);
   const open = useCareerStore((s) => s.open);
   const rename = useCareerStore((s) => s.rename);
 
@@ -98,6 +107,24 @@ export default function Dashboard() {
           <p className={styles.muted}>
             Ogni modifica viene salvata subito su questo dispositivo. Nessun account, nessun
             server.
+          </p>
+        </section>
+
+        <section className={styles.card}>
+          <h2>Roster ({roster.length})</h2>
+          <ul className={styles.rosterList}>
+            {roster.map((w) => (
+              <li key={w.id}>
+                <strong>{w.name}</strong> — {w.nickname}{" "}
+                <span className={styles.tag}>
+                  · {alignmentLabel(w.alignment)} · {bodyTypeLabel(w.bodyType)}
+                </span>
+              </li>
+            ))}
+          </ul>
+          <p className={styles.muted}>
+            Il roster nasce dal seed della federazione: stesso seed, stessi atleti. Schede
+            complete, contratti e titoli arrivano nei prossimi passi.
           </p>
         </section>
 
