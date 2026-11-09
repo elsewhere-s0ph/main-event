@@ -1,6 +1,7 @@
 import { db } from "../database";
 import { SCHEMA_VERSION, type Career } from "../../game/types/career";
 import { federationNameSchema, validateCareerInput } from "../../game/core/careerSchema";
+import { removeRoster } from "./rosterRepository";
 import pkg from "../../../package.json";
 
 export type CareerResult = { career: Career | null; error: string | null };
@@ -57,6 +58,8 @@ export async function renameFederation(saveId: string, rawName: unknown): Promis
   return career ? { career, error: null } : { career: null, error: "Federazione non trovata" };
 }
 
+/** Cancella la federazione e tutto il suo roster. */
 export async function deleteCareer(saveId: string): Promise<void> {
+  await removeRoster(saveId);
   await db.careers.delete(saveId);
 }
