@@ -96,6 +96,16 @@
   color: var(--muted);
 }
 
+.rosterLink {
+  color: inherit;
+  text-decoration: none;
+  display: block;
+}
+
+.rosterLink:hover strong {
+  color: var(--gold);
+}
+
 @media (min-width: 720px) {
   .grid {
     grid-template-columns: 1fr 1fr;
