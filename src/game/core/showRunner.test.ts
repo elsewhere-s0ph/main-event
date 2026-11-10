@@ -41,6 +41,7 @@ const roster = [
   wrestler("w1", "Alfa", 8),
   wrestler("w2", "Bravo", 6),
   wrestler("w3", "Charlie", 4),
+  wrestler("w4", "Delta", 5),
 ];
 
 const card: CardItem[] = [
@@ -172,5 +173,68 @@ describe("runnableIssues", () => {
       { kind: "match", data: { id: "m1", type: "singolo", wrestlerIds: ["w1", "ghost"], titleId: null } },
     ];
     expect(runnableIssues(items, roster, []).length).toBe(1);
+  });
+
+  it("segnala un tag team incompleto e le scale senza titolo", () => {
+    const items: CardItem[] = [
+      { kind: "match", data: { id: "m1", type: "tag", wrestlerIds: ["w1", "w2", "w3"], titleId: null } },
+      { kind: "match", data: { id: "m2", type: "ladder", wrestlerIds: ["w1", "w2"], titleId: null } },
+    ];
+    expect(runnableIssues(items, roster, []).length).toBe(2);
+  });
+});
+
+describe("match avanzati (C6)", () => {
+  const cardMulti: CardItem[] = [
+    { kind: "match", data: { id: "m1", type: "tag", wrestlerIds: ["w1", "w2", "w3", "w4"], titleId: null } },
+    { kind: "match", data: { id: "m2", type: "triple", wrestlerIds: ["w1", "w2", "w3"], titleId: null } },
+    { kind: "match", data: { id: "m3", type: "cage", wrestlerIds: ["w2", "w4"], titleId: null } },
+  ];
+  const multiInput = { ...baseInput, items: cardMulti };
+
+  it("è deterministico anche con match avanzati", () => {
+    const a = runShow(multiInput);
+    const b = runShow(multiInput);
+    expect(JSON.stringify(a)).toBe(JSON.stringify(b));
+  });
+
+  it("il tag team ha vincitore e sconfitto tra i quattro", () => {
+    const { result } = runShow(multiInput);
+    const o = result.outcomes.find((x) => x.kind === "match" && x.match.id === "m1");
+    if (!o || o.kind !== "match") return;
+    expect(["w1", "w2", "w3", "w4"]).toContain(o.winnerId);
+    expect(["w1", "w2", "w3", "w4"]).toContain(o.loserId);
+    expect(o.summary).toContain("Tag team");
+  });
+
+  it("il triple threat produce un esito con valutazione nei limiti", () => {
+    const { result } = runShow(multiInput);
+    const o = result.outcomes.find((x) => x.kind === "match" && x.match.id === "m2");
+    if (!o || o.kind !== "match") return;
+    expect(o.rating).toBeGreaterThanOrEqual(5);
+    expect(o.rating).toBeLessThanOrEqual(99);
+  });
+
+  it("la gabbia aggiunge flavor alla cronaca", () => {
+    const { result } = runShow(multiInput);
+    const o = result.outcomes.find((x) => x.kind === "match" && x.match.id === "m3");
+    if (!o || o.kind !== "match") return;
+    expect(o.summary.length).toBeGreaterThan(20);
+  });
+
+  it("le scale con titolo in palio seguono le regole del titolo", () => {
+    const items: CardItem[] = [
+      { kind: "match", data: { id: "m1", type: "ladder", wrestlerIds: ["w2", "w3"], titleId: "t1" } },
+    ];
+    const { result, titles } = runShow({ ...baseInput, items });
+    const o = result.outcomes.find((x) => x.kind === "match");
+    if (!o || o.kind !== "match") return;
+    const updated = titles.find((t) => t.id === "t1");
+    expect(updated).toBeDefined();
+    if (o.titleChange) {
+      expect(updated?.currentChampionId).toBe(o.titleChange.newChampionId);
+    } else {
+      expect(o.defense).toBe(true);
+    }
   });
 });
