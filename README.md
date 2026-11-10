@@ -6,7 +6,7 @@
 **Origine:** consolidamento di GDD 1.0 + TDD 1.0 + ADD 1.0, con le modifiche approvate in data 7 novembre 2026
 **Repo:** `elsewhere-s0ph/main-event`
 **Deploy:** https://main-event.pages.dev/
-**Stato:** sviluppo in corso — C0 superato · C1 superato (verificato dall’utente) · C2 completato (CI verde, demo /match online) · C3 completato (v0.3.0: gestionale base) · C4 completato (v0.4.0: booking, show, rivalità)
+**Stato:** sviluppo in corso — C0 superato · C1 superato (verificato dall’utente) · C2 completato (CI verde, demo /match online) · C3 completato (v0.3.0: gestionale base) · C4 completato (v0.4.0: booking, show, rivalità) · C5 completato (v0.5.0: mondo & ascolti, economia, Hall of Fame)
 
 > **Come usare questo documento.** È l'unica fonte di verità del progetto. Chi lavora al progetto — umano o AI — deve leggerlo prima di toccare il codice, e deve aggiornarlo quando una decisione cambia. GDD 1.0, TDD 1.0 e ADD 1.0 restano come riferimento storico, ma in caso di conflitto vince questo documento. Ogni cambiamento rilevante va registrato nel Registro decisioni (§13).
 
@@ -169,6 +169,16 @@ La carriera (`Career`) porta con sé l'identità della federazione: `colors` (pr
 - **Registrazione dello show (`runShow` in `src/game/core/showRunner.ts`)**: i match sono simulati dal motore deterministico (seed = seed carriera + data + show + match), i segmenti producono esiti di cronaca; alla fine si calcolano le valutazioni (match e segmenti 5–99, valutazione d'insieme con i match pesati 3:1) e il verdetto. Titolo in palio: campione vincente = difesa registrata nel regno; campione sconfitto = cambio di titolo (regno chiuso e nuovo regno nell'albo d'oro).
 - **Tempo di gioco**: registrare uno show porta `inGameDate` alla data dello show (per gli show settimanali, la prossima data utile nel loro giorno della settimana). Il tempo non torna mai indietro. Dexie version(4): tabelle `rivalries`, `showCards`, `showResults`.
 
+## 4.7 Mondo & ascolti (C5, scope ridimensionato)
+
+Decisione di Flynn (10/11/2026): il C5 originale ("il mondo vive da solo") è rimandato — un universo con atleti delle federazioni AI e nuovi ingressi continui richiederebbe un pool di sprite quasi infinito. Si resta nel gestionale di federazione; le funzionalità messe in pausa sono elencate nel registro (§13).
+
+- **Federazioni rivali (`AIFederation`)**: quattro rivali deterministiche dal seed del mondo (`generateRivalFederations` in `src/game/core/world.ts`, pool di sei nomi originali con filosofia e colore). Esistono solo negli ascolti: nome, reputazione 32–78, share di pubblico. Nessun roster, nessun sprite.
+- **Ascolti (`weeklyStandings`)**: ogni show registrato produce la classifica degli spettatori della settimana — la federazione del GM (`userViewers`: rating × tipo di show × richiamo) contro le rivali (`rivalViewers`: reputazione con umore del pubblico deterministico per data). Quota di mercato con `shareOf`.
+- **Economia (`src/game/core/economy.ts`)**: bilancio con registro delle transazioni, mai un numero modificato a mano. Il conto dello show: biglietti (affluenza dal pubblico, prezzo 28€ / 55€ speciale), merchandising, sponsor (base 2.500€ + bonus a rating ≥ 70 / ≥ 85), arena (4.200€ / 15.000€ speciale), stipendi settimanali (addebitati una sola volta a settimana di gioco, chiave ISO week). Saldo di partenza 50.000€; `CareerFinance` sulla carriera con SCHEMA_VERSION 3 e migrazione lazy (`ensureFinance` dentro `ensureIdentity`).
+- **Hall of Fame (`src/game/core/hallOfFame.ts`)**: record derivati, nessun dato duplicato — match leggendari e show migliori dai risultati registrati, regni più lunghi (in giorni di gioco) e più difese dagli albi d'oro dei titoli.
+- **UI**: pagina `/career/:saveId/world` (ascolti con barra share e storico serate, bilancio con conto dell'ultima serata e registro, Hall of Fame a quattro sezioni); card "Mondo & ascolti" in dashboard con la cassa.
+
 ---
 
 # 5. Motore di simulazione
@@ -307,7 +317,7 @@ Dexie.js su IndexedDB. Tabelle: saves, wrestlers, federations, contracts, champi
 
 **C4 — Booking & show.** Card, segmenti, rivalità con fasi narrative, turn, eventi speciali, valutazione show. *Superato quando:* si organizza e si svolge uno show completo. **Completato il 10/11/2026 (v0.4.0).**
 
-**C5 — Universo persistente.** Federazioni AI, mercato, economia, evoluzione/progressione temporale, classifiche, archivio, Hall of Fame. *Superato quando:* il mondo vive da solo tra uno show e l'altro.
+**C5 — Mondo & ascolti** (scope ridimensionato su decisione di Flynn, 10/11/2026: le federazioni AI restano come rivali negli ascolti, niente mondo che vive da solo — vedi §4.7 e §13). Federazioni rivali negli ascolti, economia con registro, classifiche, archivio, Hall of Fame. *Superato quando:* il gestionale ha un mondo con cui misurarsi e un bilancio che conta. **Completato il 10/11/2026 (v0.5.0).**
 
 **C6 — Espansione contenuti.** Più corporature, mosse, tipi di match avanzati (cage, ladder, hardcore…), arene, pubblico, effetti, entrate.
 
@@ -379,3 +389,5 @@ App installabile come PWA · funziona su PC e smartphone · utilizzabile offline
 | 10/11/2026 | Contratti completati: stato (attivo / in scadenza / scaduto), rinnovi a 26/39/52 settimane con paga ricalcolata, licenziamento; titoli e albi d'oro: Championship con regni storici (nome congelato nel regno), incoronazione, vacanza, titolo pesi leggeri riservato ai cruiserweight, pagina dedicata e card in dashboard | il gestionale del roster è completo; la data di gioco resta ferma al 2027-01-01 finché C4 non introduca il tempo settimanale |
 | 10/11/2026 | C3 completato (v0.3.0): identità federazione — colori, filosofia di booking (spettacolare/tecnica/hardcore/mainstream/sviluppo giovani), 1–4 show settimanali con nome e giorno, logo caricato o stemma generato dalle iniziali; SCHEMA_VERSION 2 con migrazione lazy; fix id wrestler con prefisso saveId (evitate collisioni Dexie tra federazioni) | chiuso il gestionale base: si passa al booking e agli show (C4) |
 | 10/11/2026 | C4 completato (v0.4.0): booking con card di match singoli e segmenti (promo, intervista, attacco backstage, celebrazione, annuncio), eventi speciali con nome e data, rivalità in 5 fasi narrative con intensità e calore, registrazione degli show col motore deterministico (valutazioni 5–99, verdetto), difese dei titoli e cambi di titolo in match, tempo di gioco che avanza alla data di ogni show; Dexie version(4) con rivalries/showCards/showResults | il criterio del checkpoint è raggiunto: si organizza e si svolge uno show completo; il tempo di gioco si mette in moto e le difese dei titoli contano |
+
+| 10/11/2026 | Decisione di scope C5 (Flynn): il C5 originale "universo persistente / mondo che vive da solo" è RIMANDATO — un universo con atleti delle federazioni AI e nuovi ingressi richiederebbe un pool di sprite quasi infinito. Il C5 consegnato (v0.5.0) tiene: federazioni AI ridotte a rivali negli ascolti (share di pubblico, nessun roster né sprite), economia con registro delle transazioni, classifiche, archivio e Hall of Fame. In pausa, da ricordare quando si chiederà cosa manca: mercato condiviso di wrestler, progressione temporale (invecchiamento, crescita, ritiri, nuove leve), federazioni AI che bookano show e vivono da sole | restare nel gestionale di federazione senza esplodere la produzione di sprite; il mondo si misura negli ascolti, non sul ring |
