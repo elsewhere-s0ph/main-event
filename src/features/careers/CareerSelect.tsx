@@ -253,9 +253,10 @@ export default function CareerSelect() {
 
       <footer className={styles.footer}>
         <p className={styles.muted}>
-          Checkpoint C4 — booking e show in gioco. Prossimo passo: universo persistente.
+          Checkpoint C5 — mondo, ascolti ed economia in gioco. Prossimo passo: contenuti e restyle 32-bit.
         </p>
       </footer>
     </div>
   );
 }
+
