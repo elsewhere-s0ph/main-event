@@ -288,7 +288,8 @@ export function generateInitialRoster(
     const stats = statsFor(bp.bodyType, rng);
     const weeks = CONTRACT_WEEKS[Math.floor(rng() * CONTRACT_WEEKS.length)];
     return {
-      id: `w-${slugify(bp.name)}`,
+      // Id unici per federazione: la chiave primaria è condivisa tra i salvataggi.
+      id: `w-${saveId.slice(0, 6)}-${slugify(bp.name)}`,
       saveId,
       name: bp.name,
       nickname: bp.nickname,
