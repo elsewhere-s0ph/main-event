@@ -6,6 +6,7 @@ import WrestlerPage from "../features/roster/WrestlerPage";
 import TitlesPage from "../features/titles/TitlesPage";
 import FederationPage from "../features/federation/FederationPage";
 import BookingPage from "../features/booking/BookingPage";
+import WorldPage from "../features/world/WorldPage";
 
 export const router = createBrowserRouter([
   { path: "/", element: <CareerSelect /> },
@@ -14,6 +15,8 @@ export const router = createBrowserRouter([
   { path: "/career/:saveId/titles", element: <TitlesPage /> },
   { path: "/career/:saveId/federation", element: <FederationPage /> },
   { path: "/career/:saveId/booking", element: <BookingPage /> },
+  { path: "/career/:saveId/world", element: <WorldPage /> },
   { path: "/match", element: <MatchScreen /> },
   { path: "*", element: <Navigate to="/" replace /> },
 ]);
+
