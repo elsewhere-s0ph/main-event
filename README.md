@@ -6,7 +6,7 @@
 **Origine:** consolidamento di GDD 1.0 + TDD 1.0 + ADD 1.0, con le modifiche approvate in data 7 novembre 2026
 **Repo:** `elsewhere-s0ph/main-event`
 **Deploy:** https://main-event.pages.dev/
-**Stato:** sviluppo in corso — C0 superato · C1 superato (verificato dall’utente) · C2 completato (CI verde, demo /match online) · C3 completato (v0.3.0: gestionale base, in attesa di verifica utente)
+**Stato:** sviluppo in corso — C0 superato · C1 superato (verificato dall’utente) · C2 completato (CI verde, demo /match online) · C3 completato (v0.3.0: gestionale base) · C4 completato (v0.4.0: booking, show, rivalità)
 
 > **Come usare questo documento.** È l'unica fonte di verità del progetto. Chi lavora al progetto — umano o AI — deve leggerlo prima di toccare il codice, e deve aggiornarlo quando una decisione cambia. GDD 1.0, TDD 1.0 e ADD 1.0 restano come riferimento storico, ma in caso di conflitto vince questo documento. Ogni cambiamento rilevante va registrato nel Registro decisioni (§13).
 
@@ -161,6 +161,14 @@ Ogni modifica futura al modello dati passa da migrazioni: mai cancellare una par
 
 La carriera (`Career`) porta con sé l'identità della federazione: `colors` (primario/secondario/accento, hex), `philosophy` (spettacolare, tecnica, hardcore, mainstream, sviluppo giovani — stessa lista delle federazioni AI §8), `shows` (1–4 show settimanali con nome e giorno), `logo` (immagine caricata dall'utente come dataURL, o null = stemma generato dalle iniziali con i colori). Validazione Zod in `src/game/core/federation.ts`; migrazione lazy a SCHEMA_VERSION 2 riempie i salvataggi precedenti con i default, senza toccare nessun dato esistente.
 
+## 4.6 Booking, rivalità e show (C4)
+
+- **Card (`ShowCard`)**: lista ordinata di voci — match singoli (`BookedMatch`, due atleti distinti, titolo in palio opzionale) e segmenti (`BookedSegment`: promo, intervista, attacco backstage, celebrazione, annuncio; 1–3 protagonisti). Una card per show; la card resta salvata da una settimana all'altra e si modifica. Validazione Zod in `src/game/core/booking.ts` (max 12 voci, un atleta in un solo match per card).
+- **Eventi speciali**: card a sé con nome e data di gioco, create dal GM; una volta registrati, l'evento esce dal calendario e resta nello storico.
+- **Rivalità (`Rivalry`)**: due atleti, fasi narrative (inizio → provocazione → escalation → conflitto → culmine → risoluzione), intensità 1–10, calore del pubblico 0–100, cronaca degli episodi. Si aprono dal booking; avanzano quando i due protagonisti passano dallo stesso show (insieme in un match o in un segmento) e si chiudono sul ring al culmine, o per decisione del GM.
+- **Registrazione dello show (`runShow` in `src/game/core/showRunner.ts`)**: i match sono simulati dal motore deterministico (seed = seed carriera + data + show + match), i segmenti producono esiti di cronaca; alla fine si calcolano le valutazioni (match e segmenti 5–99, valutazione d'insieme con i match pesati 3:1) e il verdetto. Titolo in palio: campione vincente = difesa registrata nel regno; campione sconfitto = cambio di titolo (regno chiuso e nuovo regno nell'albo d'oro).
+- **Tempo di gioco**: registrare uno show porta `inGameDate` alla data dello show (per gli show settimanali, la prossima data utile nel loro giorno della settimana). Il tempo non torna mai indietro. Dexie version(4): tabelle `rivalries`, `showCards`, `showResults`.
+
 ---
 
 # 5. Motore di simulazione
@@ -297,7 +305,7 @@ Dexie.js su IndexedDB. Tabelle: saves, wrestlers, federations, contracts, champi
 
 **C3 — Gestionale base.** Creazione federazione (nome, logo, colori, filosofia, show settimanali), modello dati wrestler completo, roster, schede, contratti, titoli, albi d'oro. *Superato quando:* gestione completa di un piccolo roster. **Completato il 10/11/2026 (v0.3.0).**
 
-**C4 — Booking & show.** Card, segmenti, rivalità con fasi narrative, turn, eventi speciali, valutazione show. *Superato quando:* si organizza e si svolge uno show completo.
+**C4 — Booking & show.** Card, segmenti, rivalità con fasi narrative, turn, eventi speciali, valutazione show. *Superato quando:* si organizza e si svolge uno show completo. **Completato il 10/11/2026 (v0.4.0).**
 
 **C5 — Universo persistente.** Federazioni AI, mercato, economia, evoluzione/progressione temporale, classifiche, archivio, Hall of Fame. *Superato quando:* il mondo vive da solo tra uno show e l'altro.
 
@@ -370,3 +378,4 @@ App installabile come PWA · funziona su PC e smartphone · utilizzabile offline
 | 08/11/2026 | Prototipo C2 realizzato con Canvas 2D puro (niente Phaser): scena logica 480×300, scheletri a stecche con proporzioni per corporatura, corde disegnate in due livelli (dietro/davanti ai wrestler) | misurare prima sul prototipo: se Canvas regge anche con pubblico ed effetti, valutare la promozione a decisione vincolante; Phaser resta l’opzione per scene complesse |
 | 10/11/2026 | Contratti completati: stato (attivo / in scadenza / scaduto), rinnovi a 26/39/52 settimane con paga ricalcolata, licenziamento; titoli e albi d'oro: Championship con regni storici (nome congelato nel regno), incoronazione, vacanza, titolo pesi leggeri riservato ai cruiserweight, pagina dedicata e card in dashboard | il gestionale del roster è completo; la data di gioco resta ferma al 2027-01-01 finché C4 non introduca il tempo settimanale |
 | 10/11/2026 | C3 completato (v0.3.0): identità federazione — colori, filosofia di booking (spettacolare/tecnica/hardcore/mainstream/sviluppo giovani), 1–4 show settimanali con nome e giorno, logo caricato o stemma generato dalle iniziali; SCHEMA_VERSION 2 con migrazione lazy; fix id wrestler con prefisso saveId (evitate collisioni Dexie tra federazioni) | chiuso il gestionale base: si passa al booking e agli show (C4) |
+| 10/11/2026 | C4 completato (v0.4.0): booking con card di match singoli e segmenti (promo, intervista, attacco backstage, celebrazione, annuncio), eventi speciali con nome e data, rivalità in 5 fasi narrative con intensità e calore, registrazione degli show col motore deterministico (valutazioni 5–99, verdetto), difese dei titoli e cambi di titolo in match, tempo di gioco che avanza alla data di ogni show; Dexie version(4) con rivalries/showCards/showResults | il criterio del checkpoint è raggiunto: si organizza e si svolge uno show completo; il tempo di gioco si mette in moto e le difese dei titoli contano |
