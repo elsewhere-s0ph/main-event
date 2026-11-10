@@ -40,6 +40,60 @@
   margin-bottom: 14px;
 }
 
+.identity {
+  border: 1px solid var(--surface-2);
+  border-radius: var(--radius);
+  padding: 14px;
+  margin: 14px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.colorRow {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.colorField {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.colorField input[type="color"] {
+  width: 64px;
+  height: 40px;
+  padding: 2px;
+  border: 1px solid var(--surface-2);
+  border-radius: 8px;
+  background: var(--surface);
+}
+
+.showList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.showRow {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.showRow input {
+  flex: 1;
+  min-width: 0;
+}
+
+.showRow select {
+  flex: 0 0 auto;
+}
+
 .error {
   color: var(--danger);
   margin: 0 0 10px;
@@ -90,6 +144,16 @@
 .footer {
   text-align: center;
   font-size: 0.8rem;
+}
+
+@media (max-width: 480px) {
+  .showRow {
+    flex-wrap: wrap;
+  }
+
+  .showRow input {
+    flex: 1 1 100%;
+  }
 }
 
 @media (min-width: 720px) {
