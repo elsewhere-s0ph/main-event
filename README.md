@@ -1,3 +1,7 @@
+text
+resource
+repo://elsewhere-s0ph/main-event/sha/6110df76d5ade70d3185a76b3bec06b040385088/contents/README.md
+text/plain; charset=utf-8
 
 # MAIN EVENT — Documento Master
 
@@ -6,7 +10,7 @@
 **Origine:** consolidamento di GDD 1.0 + TDD 1.0 + ADD 1.0, con le modifiche approvate in data 7 novembre 2026
 **Repo:** `elsewhere-s0ph/main-event`
 **Deploy:** https://main-event.pages.dev/
-**Stato:** sviluppo in corso — C0 superato · C1 superato (verificato dall’utente) · C2 completato (CI verde, demo /match online) · C3 completato (v0.3.0: gestionale base) · C4 completato (v0.4.0: booking, show, rivalità) · C5 completato (v0.5.0: mondo & ascolti, economia, Hall of Fame)
+**Stato:** sviluppo in corso — C0 superato · C1 superato (verificato dall’utente) · C2 completato (CI verde, demo /match online) · C3 completato (v0.3.0: gestionale base) · C4 completato (v0.4.0: booking, show, rivalità) · C5 completato (v0.5.0: mondo & ascolti, economia, Hall of Fame) · C6 completato nella parte non visiva (v0.6.0: tipi di match avanzati, visiva rimandata)
 
 > **Come usare questo documento.** È l'unica fonte di verità del progetto. Chi lavora al progetto — umano o AI — deve leggerlo prima di toccare il codice, e deve aggiornarlo quando una decisione cambia. GDD 1.0, TDD 1.0 e ADD 1.0 restano come riferimento storico, ma in caso di conflitto vince questo documento. Ogni cambiamento rilevante va registrato nel Registro decisioni (§13).
 
@@ -179,6 +183,15 @@ Decisione di Flynn (10/11/2026): il C5 originale ("il mondo vive da solo") è ri
 - **Hall of Fame (`src/game/core/hallOfFame.ts`)**: record derivati, nessun dato duplicato — match leggendari e show migliori dai risultati registrati, regni più lunghi (in giorni di gioco) e più difese dagli albi d'oro dei titoli.
 - **UI**: pagina `/career/:saveId/world` (ascolti con barra share e storico serate, bilancio con conto dell'ultima serata e registro, Hall of Fame a quattro sezioni); card "Mondo & ascolti" in dashboard con la cassa.
 
+## 4.8 Tipi di match avanzati (C6, parte non visiva)
+
+- **Catalogo (`MATCH_TYPES` in `src/game/core/matchTypes.ts`)**: singolo, tag team (2v2), triple threat, fatal 4-way, gabbia, scale, hardcore. Gabbia, scale e hardcore restano 1v1 col motore intoccato (la timeline è accoppiata al renderer): cambiano solo il bonus di rating e la cronaca (`ruleFlavor`). Il match alle scale è l'unico che richiede un titolo in palio.
+- **Match a più atleti**: tag, triple threat e fatal 4-way si risolvono in `resolveMultiMatch` — puro e deterministico, peso esponenziale sul punteggio (power×2 + agility×1.5 + stamina + charisma×0.5, elevato a 2.2). Nel tag i primi due scelti formano la squadra 1, con una "chimica" casuale dal seed che può rovesciare i pronostici. Il motore 1v1 non è toccato.
+- **Validazione (`matchIssues`)**: numero di atleti per tipo, doppioni nello stesso match, ladder senza titolo. Usata da `validateCard` (booking) e da `runnableIssues` (showRunner).
+- **Titoli nei match a 3–4**: il titolo in palio funziona come nei singoli — difesa se vince il campione, cambio di mani se perde.
+- **Mosse**: catalogo del motore ampliato da 6 a 14 (superkick, enzuigiri, cutter, moonsault per gli agili; spinebuster, ddt, brainbuster, chokeslam per i power). Logica del motore invariata: cambia solo la distribuzione delle mosse.
+- **Visiva rimandata (decisione di Flynn, 10/11/2026)**: arene, pubblico, effetti, entrate spettacolari e sprite sono in pausa — Flynn fornirà gli asset nelle fasi finali (vedi §13). Zero pixel in questa fase.
+
 ---
 
 # 5. Motore di simulazione
@@ -319,7 +332,7 @@ Dexie.js su IndexedDB. Tabelle: saves, wrestlers, federations, contracts, champi
 
 **C5 — Mondo & ascolti** (scope ridimensionato su decisione di Flynn, 10/11/2026: le federazioni AI restano come rivali negli ascolti, niente mondo che vive da solo — vedi §4.7 e §13). Federazioni rivali negli ascolti, economia con registro, classifiche, archivio, Hall of Fame. *Superato quando:* il gestionale ha un mondo con cui misurarsi e un bilancio che conta. **Completato il 10/11/2026 (v0.5.0).**
 
-**C6 — Espansione contenuti.** Più corporature, mosse, tipi di match avanzati (cage, ladder, hardcore…), arene, pubblico, effetti, entrate.
+**C6 — Espansione contenuti.** Più corporature, mosse, tipi di match avanzati (cage, ladder, hardcore…), arene, pubblico, effetti, entrate. **Parte non visiva completata il 10/11/2026 (v0.6.0): tipi di match avanzati, validazione per tipo, mosse nuove. La parte visiva (arene, pubblico, effetti, entrate, sprite) è rimandata alle fasi finali su decisione di Flynn, che fornirà gli asset (§13).**
 
 **C7 — Pubblicazione.** PWA a pieno standard (§9.1), Playwright, ottimizzazione, test su dispositivi reali, CSP enforced, backup. *Superato quando:* app installabile e stabile.
 
@@ -389,5 +402,6 @@ App installabile come PWA · funziona su PC e smartphone · utilizzabile offline
 | 10/11/2026 | Contratti completati: stato (attivo / in scadenza / scaduto), rinnovi a 26/39/52 settimane con paga ricalcolata, licenziamento; titoli e albi d'oro: Championship con regni storici (nome congelato nel regno), incoronazione, vacanza, titolo pesi leggeri riservato ai cruiserweight, pagina dedicata e card in dashboard | il gestionale del roster è completo; la data di gioco resta ferma al 2027-01-01 finché C4 non introduca il tempo settimanale |
 | 10/11/2026 | C3 completato (v0.3.0): identità federazione — colori, filosofia di booking (spettacolare/tecnica/hardcore/mainstream/sviluppo giovani), 1–4 show settimanali con nome e giorno, logo caricato o stemma generato dalle iniziali; SCHEMA_VERSION 2 con migrazione lazy; fix id wrestler con prefisso saveId (evitate collisioni Dexie tra federazioni) | chiuso il gestionale base: si passa al booking e agli show (C4) |
 | 10/11/2026 | C4 completato (v0.4.0): booking con card di match singoli e segmenti (promo, intervista, attacco backstage, celebrazione, annuncio), eventi speciali con nome e data, rivalità in 5 fasi narrative con intensità e calore, registrazione degli show col motore deterministico (valutazioni 5–99, verdetto), difese dei titoli e cambi di titolo in match, tempo di gioco che avanza alla data di ogni show; Dexie version(4) con rivalries/showCards/showResults | il criterio del checkpoint è raggiunto: si organizza e si svolge uno show completo; il tempo di gioco si mette in moto e le difese dei titoli contano |
-
+| 10/11/2026 | C5 completato (v0.5.0): federazioni AI come rivali negli ascolti (share di pubblico), economia con registro delle transazioni, classifiche, archivio, Hall of Fame; pagina /world e card "Mondo & ascolti" in dashboard | il gestionale ha un mondo con cui misurarsi e un bilancio che conta |
+| 10/11/2026 | C6, parte non visiva completata (v0.6.0): sette tipi di match (singolo, tag 2v2, triple threat, fatal 4-way, gabbia, scale, hardcore) con validazione per tipo (`matchIssues`), risoluzione deterministica dei multi-match in `matchTypes.ts` (motore 1v1 intoccato), ladder con titolo obbligatorio, cronaca dedicata per gabbia/scale/hardcore, catalogo mosse da 6 a 14. La parte visiva del C6 (arene, pubblico, effetti, entrate, sprite) è RIMANDATA alle fasi finali: Flynn fornirà gli asset | arricchire il booking senza esplodere la produzione di sprite; la timeline resta accoppiata al renderer |
 | 10/11/2026 | Decisione di scope C5 (Flynn): il C5 originale "universo persistente / mondo che vive da solo" è RIMANDATO — un universo con atleti delle federazioni AI e nuovi ingressi richiederebbe un pool di sprite quasi infinito. Il C5 consegnato (v0.5.0) tiene: federazioni AI ridotte a rivali negli ascolti (share di pubblico, nessun roster né sprite), economia con registro delle transazioni, classifiche, archivio e Hall of Fame. In pausa, da ricordare quando si chiederà cosa manca: mercato condiviso di wrestler, progressione temporale (invecchiamento, crescita, ritiri, nuove leve), federazioni AI che bookano show e vivono da sole | restare nel gestionale di federazione senza esplodere la produzione di sprite; il mondo si misura negli ascolti, non sul ring |
