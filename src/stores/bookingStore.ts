@@ -6,10 +6,12 @@ import * as careerRepo from "../data/repositories/careerRepository";
 import { nextShowDate, validateCard } from "../game/core/booking";
 import { runShow, runnableIssues } from "../game/core/showRunner";
 import { resolveRivalry as closeRivalry } from "../game/core/rivalry";
+import { applyShowFinance, showFinanceBreakdown, STARTING_BALANCE } from "../game/core/economy";
+import { USER_REPUTATION, userViewers } from "../game/core/world";
 import { useCareerStore } from "./careerStore";
 import type { CardItem, ShowCard, ShowResult } from "../game/types/booking";
 import type { Rivalry } from "../game/types/rivalry";
-import type { Career } from "../game/types/career";
+import type { Career, CareerFinance } from "../game/types/career";
 
 // Stato del booking (C4): card degli show, rivalità e risultati registrati.
 // Le operazioni passano sempre dai repository: la UI non tocca il database.
@@ -79,8 +81,25 @@ export const useBookingStore = create<BookingStore>((set, get) => {
     for (const t of output.titles) await titleRepo.saveTitle(t);
     if (isSpecial) await bookingRepo.deleteCard(card.id);
 
+    // Economia (C5): il conto dello show entra nel registro della federazione.
+    const viewers = userViewers(result.rating, isSpecial, USER_REPUTATION);
+    const weeklyPayroll = careerState.roster.reduce((sum, w) => sum + w.contract.weeklyPay, 0);
+    const breakdown = showFinanceBreakdown({
+      rating: result.rating,
+      isSpecial,
+      viewers,
+      showName,
+      date,
+      weeklyPayroll,
+    });
+    const finance: CareerFinance = applyShowFinance(
+      career.finance ?? { balance: STARTING_BALANCE, transactions: [] },
+      breakdown
+    );
+
     // Il tempo avanza alla data dello show e non torna indietro.
     const updatedCareer = await careerRepo.updateInGameDate(career.saveId, date);
+    const withFinance = await careerRepo.updateFinance(career.saveId, finance);
 
     const mergedRivalries = state.rivalries.map(
       (r) => output.rivalries.find((u) => u.id === r.id) ?? r
@@ -94,7 +113,7 @@ export const useBookingStore = create<BookingStore>((set, get) => {
       cards: isSpecial ? omitCard(state.cards, showId) : state.cards,
     });
     useCareerStore.setState({
-      current: updatedCareer ?? career,
+      current: withFinance ?? updatedCareer ?? career,
       titles: mergedTitles,
     });
     return { ok: true, error: null };
@@ -239,3 +258,4 @@ export const useBookingStore = create<BookingStore>((set, get) => {
     },
   };
 });
+
