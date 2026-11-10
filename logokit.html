@@ -297,44 +297,25 @@ bw.append(
 );
 document.getElementById('btn-png').append(btn('og.png 1200×630 (crest + wordmark su navy)', exportOG));
 
-document.getElementById('snip-manifest').textContent = '{
-'
-+ '  "id": "/",
-'
-+ '  "name": "Main Event",
-'
-+ '  "short_name": "Main Event",
-'
-+ '  "description": "Gestisci la tua federazione di wrestling: roster, titoli, rivalità e match che si animano da soli.",
-'
-+ '  "lang": "it",
-'
-+ '  "dir": "ltr",
-'
-+ '  "start_url": "./",
-'
-+ '  "scope": "./",
-'
-+ '  "display": "standalone",
-'
-+ '  "background_color": "#0b0e1a",
-'
-+ '  "theme_color": "#0b0e1a",
-'
-+ '  "icons": [
-'
-+ '    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
-'
-+ '    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
-'
-+ '    { "src": "icons/maskable-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
-'
-+ '    { "src": "icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" },
-'
-+ '    { "src": "icons/icon.svg", "sizes": "any", "type": "image/svg+xml" }
-'
-+ '  ]
-'
+document.getElementById('snip-manifest').textContent = '{\n'
++ '  "id": "/",\n'
++ '  "name": "Main Event",\n'
++ '  "short_name": "Main Event",\n'
++ '  "description": "Gestisci la tua federazione di wrestling: roster, titoli, rivalità e match che si animano da soli.",\n'
++ '  "lang": "it",\n'
++ '  "dir": "ltr",\n'
++ '  "start_url": "./",\n'
++ '  "scope": "./",\n'
++ '  "display": "standalone",\n'
++ '  "background_color": "#0b0e1a",\n'
++ '  "theme_color": "#0b0e1a",\n'
++ '  "icons": [\n'
++ '    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },\n'
++ '    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },\n'
++ '    { "src": "icons/maskable-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },\n'
++ '    { "src": "icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" },\n'
++ '    { "src": "icons/icon.svg", "sizes": "any", "type": "image/svg+xml" }\n'
++ '  ]\n'
 + '}';
 
 document.getElementById('snip-head').textContent = '<link rel="icon" type="image/svg+xml" href="/favicon.svg" />\n'
