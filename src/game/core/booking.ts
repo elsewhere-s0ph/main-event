@@ -1,6 +1,7 @@
 import { z } from "zod";
 import type { WeeklyShow } from "../types/career";
-import type { SegmentKind } from "../types/booking";
+import type { MatchType, SegmentKind } from "../types/booking";
+import { MATCH_TYPES, matchIssues } from "./matchTypes";
 
 // Booking (C4): validazione della card e calendario degli show settimanali.
 // Modulo puro: nessuna dipendenza da React, Dexie o API del browser.
@@ -30,8 +31,11 @@ export const cardItemSchema = z.discriminatedUnion("kind", [
     kind: z.literal("match"),
     data: z.object({
       id: idField,
-      type: z.literal("singolo"),
-      wrestlerIds: z.tuple([idField, idField]),
+      type: z.enum(MATCH_TYPES.map((t) => t.id) as [MatchType, ...MatchType[]]),
+      wrestlerIds: z
+        .array(idField)
+        .min(2, "Un match ha bisogno di almeno due atleti")
+        .max(4, "Nessun match ha più di 4 atleti"),
       titleId: idField.nullable(),
     }),
   }),
@@ -86,9 +90,9 @@ export function validateCard(raw: unknown): CardValidation {
   const booked: Map<string, string> = new Map();
   for (const item of parsed.data.items) {
     if (item.kind !== "match") continue;
-    const [a, b] = item.data.wrestlerIds;
-    if (a === b) {
-      return { ok: false, error: "Un match ha bisogno di due atleti diversi" };
+    // Regole del tipo di match: numero di atleti, doppioni, stipulazioni.
+    for (const issue of matchIssues(item.data.type, item.data.wrestlerIds, item.data.titleId)) {
+      return { ok: false, error: issue };
     }
     for (const id of item.data.wrestlerIds) {
       if (booked.has(id)) {
