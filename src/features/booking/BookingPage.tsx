@@ -434,6 +434,17 @@ export default function BookingPage() {
           <div className={styles.actions}>
             <button
               type="button"
+              className="btn"
+              onClick={addSegment}
+              disabled={segPros.length === 0 || draft.length >= MAX_CARD_ITEMS}
+            >
+              Aggiungi il segmento alla card
+            </button>
+          </div>
+
+          <div className={styles.actions}>
+            <button
+              type="button"
               className="btn btn-primary"
               onClick={handleSave}
               disabled={busy || draft.length === 0}
