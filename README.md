@@ -6,7 +6,7 @@
 **Origine:** consolidamento di GDD 1.0 + TDD 1.0 + ADD 1.0, con le modifiche approvate in data 7 novembre 2026
 **Repo:** `elsewhere-s0ph/main-event`
 **Deploy:** https://main-event.pages.dev/
-**Stato:** sviluppo in corso — C0 superato · C1 superato (verificato dall’utente) · C2 completato (CI verde, demo /match online) · verifica utente in corso
+**Stato:** sviluppo in corso — C0 superato · C1 superato (verificato dall’utente) · C2 completato (CI verde, demo /match online) · C3 completato (v0.3.0: gestionale base, in attesa di verifica utente)
 
 > **Come usare questo documento.** È l'unica fonte di verità del progetto. Chi lavora al progetto — umano o AI — deve leggerlo prima di toccare il codice, e deve aggiornarlo quando una decisione cambia. GDD 1.0, TDD 1.0 e ADD 1.0 restano come riferimento storico, ma in caso di conflitto vince questo documento. Ogni cambiamento rilevante va registrato nel Registro decisioni (§13).
 
@@ -157,6 +157,10 @@ interface SaveMetadata { saveId: string; gameVersion: string; schemaVersion: num
 
 Ogni modifica futura al modello dati passa da migrazioni: mai cancellare una partita per aggiornare l'app.
 
+## 4.5 Identità della federazione (C3)
+
+La carriera (`Career`) porta con sé l'identità della federazione: `colors` (primario/secondario/accento, hex), `philosophy` (spettacolare, tecnica, hardcore, mainstream, sviluppo giovani — stessa lista delle federazioni AI §8), `shows` (1–4 show settimanali con nome e giorno), `logo` (immagine caricata dall'utente come dataURL, o null = stemma generato dalle iniziali con i colori). Validazione Zod in `src/game/core/federation.ts`; migrazione lazy a SCHEMA_VERSION 2 riempie i salvataggi precedenti con i default, senza toccare nessun dato esistente.
+
 ---
 
 # 5. Motore di simulazione
@@ -291,7 +295,7 @@ Dexie.js su IndexedDB. Tabelle: saves, wrestlers, federations, contracts, champi
 
 **C2 — Prototipo del motore (cuore del progetto).** Ring isometrico, due wrestler originali (corporature diverse), simulazione automatica deterministica → event timeline → animazioni sincronizzate pose+tween (idle, camminata, presa, una mossa d'impatto, una finisher, knockdown, rientro, schienamento, kickout), barra energia, controlli play/pausa/velocità/skip, schermata risultato. *Superato quando:* due personaggi disputano da soli un incontro completo, leggibile e bello da vedere, con risultato corretto dal motore — su desktop **e** smartphone.
 
-**C3 — Gestionale base.** Creazione federazione (nome, logo, colori, filosofia, show settimanali), modello dati wrestler completo, roster, schede, contratti, titoli, albi d'oro. *Superato quando:* gestione completa di un piccolo roster.
+**C3 — Gestionale base.** Creazione federazione (nome, logo, colori, filosofia, show settimanali), modello dati wrestler completo, roster, schede, contratti, titoli, albi d'oro. *Superato quando:* gestione completa di un piccolo roster. **Completato il 10/11/2026 (v0.3.0).**
 
 **C4 — Booking & show.** Card, segmenti, rivalità con fasi narrative, turn, eventi speciali, valutazione show. *Superato quando:* si organizza e si svolge uno show completo.
 
@@ -364,3 +368,5 @@ App installabile come PWA · funziona su PC e smartphone · utilizzabile offline
 | 08/11/2026 | C2 completato: motore di incontro deterministico (mulberry32 seminato, timeline di eventi), ring isometrico su Canvas 2D, animazioni pose+tween, demo su /match (seed via ?seed=), v0.2.0 | prototipo pronto per la verifica utente su desktop e smartphone |
 | 08/11/2026 | Correzioni nate dalla prima CI rossa di C2: (1) i valori `as const` nei parametri default di funzione generano tipi letterali — `gap: number = DUR.gap` invece di `gap = DUR.gap`; (2) schienamento vincente solo su avversario davvero piegato (energia <= 18 endgame, < 25 flusso normale) — niente vittorie con lo sconfitto fresco; invarianti del motore ora verificati in CI su 17 seed | tsc strict come gate + test deterministici su molti seed: le regressioni del motore non passano più |
 | 08/11/2026 | Prototipo C2 realizzato con Canvas 2D puro (niente Phaser): scena logica 480×300, scheletri a stecche con proporzioni per corporatura, corde disegnate in due livelli (dietro/davanti ai wrestler) | misurare prima sul prototipo: se Canvas regge anche con pubblico ed effetti, valutare la promozione a decisione vincolante; Phaser resta l’opzione per scene complesse |
+| 10/11/2026 | Contratti completati: stato (attivo / in scadenza / scaduto), rinnovi a 26/39/52 settimane con paga ricalcolata, licenziamento; titoli e albi d'oro: Championship con regni storici (nome congelato nel regno), incoronazione, vacanza, titolo pesi leggeri riservato ai cruiserweight, pagina dedicata e card in dashboard | il gestionale del roster è completo; la data di gioco resta ferma al 2027-01-01 finché C4 non introduca il tempo settimanale |
+| 10/11/2026 | C3 completato (v0.3.0): identità federazione — colori, filosofia di booking (spettacolare/tecnica/hardcore/mainstream/sviluppo giovani), 1–4 show settimanali con nome e giorno, logo caricato o stemma generato dalle iniziali; SCHEMA_VERSION 2 con migrazione lazy; fix id wrestler con prefisso saveId (evitate collisioni Dexie tra federazioni) | chiuso il gestionale base: si passa al booking e agli show (C4) |
