@@ -136,6 +136,11 @@ export async function vacateTitle(titleId: string, today: string): Promise<Title
   return { title: updated, error: null };
 }
 
+/** Salva lo stato aggiornato di un titolo (difese e cambi di titolo del booking). */
+export async function saveTitle(title: Championship): Promise<void> {
+  await db.championships.put(title);
+}
+
 /** Cancella tutti i titoli di una federazione (con la federazione). */
 export async function removeTitles(saveId: string): Promise<void> {
   await db.championships.where("saveId").equals(saveId).delete();
