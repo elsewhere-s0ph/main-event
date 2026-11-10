@@ -22,6 +22,7 @@ export default function Dashboard() {
   const { saveId } = useParams();
   const current = useCareerStore((s) => s.current);
   const roster = useCareerStore((s) => s.roster);
+  const titles = useCareerStore((s) => s.titles);
   const open = useCareerStore((s) => s.open);
   const rename = useCareerStore((s) => s.rename);
 
@@ -141,6 +142,26 @@ export default function Dashboard() {
           <p className={styles.muted}>
             Il roster nasce dal seed della federazione: stesso seed, stessi atleti. Tocca un
             atleta per aprire la sua scheda.
+          </p>
+        </section>
+
+        <section className={styles.card}>
+          <h2>Titoli e albi d’oro</h2>
+          <ul className={styles.rosterList}>
+            {titles.map((t) => {
+              const champ = roster.find((w) => w.id === t.currentChampionId);
+              return (
+                <li key={t.id}>
+                  <Link className={styles.rosterLink} to={`/career/${saveId}/titles`}>
+                    <strong>{t.name}</strong> — {champ ? champ.name : "vacante"}
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+          <p className={styles.muted}>
+            Chi regna adesso e chi ha regnato prima: tocca per gestire i titoli e scrivere la
+            storia della federazione.
           </p>
         </section>
 
