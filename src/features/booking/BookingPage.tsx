@@ -9,8 +9,14 @@ import {
   SEGMENT_LABELS,
   nextShowDate,
 } from "../../game/core/booking";
+import {
+  MATCH_TYPES,
+  MATCH_TYPE_LABELS,
+  matchIssues,
+  matchTypeById,
+} from "../../game/core/matchTypes";
 import { PHASE_LABELS } from "../../game/core/rivalry";
-import type { CardItem, SegmentKind } from "../../game/types/booking";
+import type { CardItem, MatchType, SegmentKind } from "../../game/types/booking";
 import type { Rivalry } from "../../game/types/rivalry";
 import styles from "./BookingPage.module.css";
 
@@ -29,6 +35,17 @@ function intensityStars(n: number): string {
 
 function rivalryNames(r: Rivalry, nameOf: (id: string) => string): string {
   return `${nameOf(r.participants[0])} vs ${nameOf(r.participants[1])}`;
+}
+
+function formatParticipants(
+  type: MatchType,
+  ids: string[],
+  nameOf: (id: string) => string
+): string {
+  if (type === "tag" && ids.length === 4) {
+    return `${nameOf(ids[0])} e ${nameOf(ids[1])} vs ${nameOf(ids[2])} e ${nameOf(ids[3])}`;
+  }
+  return ids.map(nameOf).join(" vs ");
 }
 
 export default function BookingPage() {
@@ -52,9 +69,10 @@ export default function BookingPage() {
 
   const [tab, setTab] = useState<string | null>(null);
   const [draft, setDraft] = useState<CardItem[]>([]);
-  const [matchA, setMatchA] = useState("");
-  const [matchB, setMatchB] = useState("");
+  const [matchType, setMatchType] = useState<MatchType>("singolo");
+  const [matchPros, setMatchPros] = useState<string[]>([]);
   const [matchTitle, setMatchTitle] = useState("");
+  const matchDef = matchTypeById(matchType);
   const [segKind, setSegKind] = useState<SegmentKind>("promo");
   const [segPros, setSegPros] = useState<string[]>([]);
   const [specialName, setSpecialName] = useState("");
@@ -90,8 +108,7 @@ export default function BookingPage() {
   useEffect(() => {
     setDraft(activeTab ? (cards[activeTab]?.items ?? []) : []);
     setSegPros([]);
-    setMatchA("");
-    setMatchB("");
+    setMatchPros([]);
     setMatchTitle("");
   }, [activeTab, cards]);
 
@@ -102,12 +119,8 @@ export default function BookingPage() {
 
   const titleOptions = useMemo(
     () =>
-      titles.filter(
-        (t) =>
-          t.currentChampionId &&
-          (t.currentChampionId === matchA || t.currentChampionId === matchB)
-      ),
-    [titles, matchA, matchB]
+      titles.filter((t) => t.currentChampionId && matchPros.includes(t.currentChampionId)),
+    [titles, matchPros]
   );
 
   if (!current) {
@@ -122,7 +135,8 @@ export default function BookingPage() {
   }
 
   function addMatch() {
-    if (!matchA || !matchB || matchA === matchB) return;
+    if (matchPros.length !== matchDef.size) return;
+    if (matchIssues(matchType, matchPros, matchTitle || null).length > 0) return;
     if (draft.length >= MAX_CARD_ITEMS) return;
     setDraft([
       ...draft,
@@ -130,14 +144,13 @@ export default function BookingPage() {
         kind: "match",
         data: {
           id: `m-${crypto.randomUUID().slice(0, 8)}`,
-          type: "singolo",
-          wrestlerIds: [matchA, matchB],
+          type: matchType,
+          wrestlerIds: [...matchPros],
           titleId: matchTitle || null,
         },
       },
     ]);
-    setMatchA("");
-    setMatchB("");
+    setMatchPros([]);
     setMatchTitle("");
   }
 
@@ -292,7 +305,7 @@ export default function BookingPage() {
                     <li key={m.id} className={styles.item}>
                       <span className={styles.itemKind}>Match</span>
                       <span className={styles.itemMain}>
-                        {nameOf(m.wrestlerIds[0])} vs {nameOf(m.wrestlerIds[1])}
+                        {MATCH_TYPE_LABELS[m.type]} · {formatParticipants(m.type, m.wrestlerIds, nameOf)}
                         {m.titleId && (
                           <span className={styles.itemTitle}>
                             {" "}· {titles.find((t) => t.id === m.titleId)?.name ?? "titolo"} in palio
@@ -330,26 +343,40 @@ export default function BookingPage() {
           )}
 
           <h3>Aggiungi un match</h3>
+          <div className={styles.segmented} role="group" aria-label="Tipo di match">
+            {MATCH_TYPES.map((t) => (
+              <button
+                key={t.id}
+                type="button"
+                className={matchType === t.id ? styles.active : undefined}
+                onClick={() => {
+                  setMatchType(t.id);
+                  setMatchPros([]);
+                }}
+                title={t.blurb}
+              >
+                {t.label}
+              </button>
+            ))}
+          </div>
+          <p className={styles.muted}>{matchDef.blurb}</p>
+          {matchType === "tag" && (
+            <p className={styles.muted}>
+              I primi due scelti sono la squadra 1, gli altri due la squadra 2.
+            </p>
+          )}
           <div className={styles.formRow}>
             <select
-              value={matchA}
-              onChange={(e) => setMatchA(e.target.value)}
-              aria-label="Primo atleta del match"
+              value=""
+              onChange={(e) => {
+                const id = e.target.value;
+                if (id && !matchPros.includes(id) && matchPros.length < matchDef.size) {
+                  setMatchPros([...matchPros, id]);
+                }
+              }}
+              aria-label="Aggiungi un atleta al match"
             >
-              <option value="">Primo atleta…</option>
-              {roster.map((w) => (
-                <option key={w.id} value={w.id}>
-                  {w.name}
-                </option>
-              ))}
-            </select>
-            <span className={styles.muted}>vs</span>
-            <select
-              value={matchB}
-              onChange={(e) => setMatchB(e.target.value)}
-              aria-label="Secondo atleta del match"
-            >
-              <option value="">Secondo atleta…</option>
+              <option value="">Aggiungi un atleta…</option>
               {roster.map((w) => (
                 <option key={w.id} value={w.id}>
                   {w.name}
@@ -372,12 +399,29 @@ export default function BookingPage() {
               type="button"
               className={styles.smallBtn}
               onClick={addMatch}
-              disabled={!matchA || !matchB || matchA === matchB}
+              disabled={matchPros.length !== matchDef.size}
             >
               Aggiungi
             </button>
           </div>
-          {matchA && matchB && matchA !== matchB && titleOptions.length === 0 && (
+          {matchPros.length > 0 && (
+            <div className={styles.chips}>
+              {matchPros.map((id) => (
+                <span key={id} className={styles.chip}>
+                  {nameOf(id)}
+                  <button
+                    type="button"
+                    className={styles.removeBtn}
+                    aria-label={`Rimuovi ${nameOf(id)} dal match`}
+                    onClick={() => setMatchPros(matchPros.filter((p) => p !== id))}
+                  >
+                    ✕
+                  </button>
+                </span>
+              ))}
+            </div>
+          )}
+          {matchPros.length === matchDef.size && titleOptions.length === 0 && (
             <p className={styles.muted}>
               Nessun titolo in palio: servirebbe un match col campione in carica.
             </p>
