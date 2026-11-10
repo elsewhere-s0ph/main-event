@@ -1,6 +1,6 @@
 import { z } from "zod";
 import type { WeeklyShow } from "../types/career";
-import type { CardItem, SegmentKind } from "../types/booking";
+import type { SegmentKind } from "../types/booking";
 
 // Booking (C4): validazione della card e calendario degli show settimanali.
 // Modulo puro: nessuna dipendenza da React, Dexie o API del browser.
