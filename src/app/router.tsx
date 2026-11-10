@@ -4,12 +4,14 @@ import Dashboard from "../features/dashboard/Dashboard";
 import MatchScreen from "../features/match/MatchScreen";
 import WrestlerPage from "../features/roster/WrestlerPage";
 import TitlesPage from "../features/titles/TitlesPage";
+import FederationPage from "../features/federation/FederationPage";
 
 export const router = createBrowserRouter([
   { path: "/", element: <CareerSelect /> },
   { path: "/career/:saveId", element: <Dashboard /> },
   { path: "/career/:saveId/wrestler/:wrestlerId", element: <WrestlerPage /> },
   { path: "/career/:saveId/titles", element: <TitlesPage /> },
+  { path: "/career/:saveId/federation", element: <FederationPage /> },
   { path: "/match", element: <MatchScreen /> },
   { path: "*", element: <Navigate to="/" replace /> },
 ]);
