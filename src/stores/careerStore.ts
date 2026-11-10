@@ -2,6 +2,7 @@ import { create } from "zustand";
 import * as repo from "../data/repositories/careerRepository";
 import * as rosterRepo from "../data/repositories/rosterRepository";
 import { validateWrestlerInput } from "../game/core/wrestlerSchema";
+import { renewContract, RENEWAL_WEEKS } from "../game/core/contracts";
 import type { Career } from "../game/types/career";
 import type { Wrestler } from "../game/types/roster";
 
@@ -29,6 +30,8 @@ interface CareerStore {
   open: (saveId: string) => Promise<Career | null>;
   selectWrestler: (id: string | null) => void;
   saveWrestler: (id: string, raw: unknown) => Promise<WrestlerResult>;
+  renewWrestler: (id: string, weeks: number) => Promise<WrestlerResult>;
+  releaseWrestler: (id: string) => Promise<void>;
   rename: (saveId: string, name: string) => Promise<CareerResult>;
   remove: (saveId: string) => Promise<void>;
 }
@@ -93,6 +96,33 @@ export const useCareerStore = create<CareerStore>((set, get) => ({
       selected: get().selected?.id === id ? updated : get().selected,
     });
     return { wrestler: updated, error: null };
+  },
+
+  renewWrestler: async (id, weeks) => {
+    const career = get().current;
+    const existing = get().roster.find((w) => w.id === id);
+    if (!career || !existing) return { wrestler: null, error: "Wrestler non trovato" };
+    if (!(RENEWAL_WEEKS as readonly number[]).includes(weeks)) {
+      return { wrestler: null, error: "Durata del rinnovo non valida" };
+    }
+    const contract = renewContract(existing, career.inGameDate, weeks);
+    await rosterRepo.updateWrestler(id, { contract });
+    const updated: Wrestler = { ...existing, contract };
+    set({
+      roster: get().roster.map((w) => (w.id === id ? updated : w)),
+      selected: get().selected?.id === id ? updated : get().selected,
+    });
+    return { wrestler: updated, error: null };
+  },
+
+  releaseWrestler: async (id) => {
+    const existing = get().roster.find((w) => w.id === id);
+    if (!existing) return;
+    await rosterRepo.removeWrestler(id);
+    set({
+      roster: get().roster.filter((w) => w.id !== id),
+      selected: get().selected?.id === id ? null : get().selected,
+    });
   },
 
   rename: async (saveId, name) => {
