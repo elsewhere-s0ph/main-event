@@ -4,6 +4,8 @@ import { federationNameSchema, validateCareerInput } from "../../game/core/caree
 import { defaultIdentity, validateIdentity } from "../../game/core/federation";
 import { removeRoster } from "./rosterRepository";
 import { removeTitles } from "./titleRepository";
+import { removeBookingData } from "./bookingRepository";
+import { removeRivalries } from "./rivalryRepository";
 import pkg from "../../../package.json";
 
 export type CareerResult = { career: Career | null; error: string | null };
@@ -129,9 +131,24 @@ export async function updateIdentity(saveId: string, raw: unknown): Promise<Care
   return career ? { career, error: null } : { career: null, error: "Federazione non trovata" };
 }
 
-/** Cancella la federazione con roster e titoli. */
+/** Cancella la federazione con roster, titoli, booking e rivalità. */
 export async function deleteCareer(saveId: string): Promise<void> {
   await removeRoster(saveId);
   await removeTitles(saveId);
+  await removeBookingData(saveId);
+  await removeRivalries(saveId);
   await db.careers.delete(saveId);
+}
+
+/**
+ * Avanza la data di gioco (C4): ogni show registrato porta il tempo alla
+ * propria data. Il tempo non torna mai indietro.
+ */
+export async function updateInGameDate(saveId: string, date: string): Promise<Career | null> {
+  const existing = await db.careers.get(saveId);
+  if (!existing) return null;
+  if (date <= existing.inGameDate) return existing;
+  const now = new Date().toISOString();
+  await db.careers.update(saveId, { inGameDate: date, updatedAt: now });
+  return (await db.careers.get(saveId)) ?? null;
 }
