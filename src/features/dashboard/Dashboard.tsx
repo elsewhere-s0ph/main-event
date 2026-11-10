@@ -1,7 +1,9 @@
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useCareerStore } from "../../stores/careerStore";
 import { contractStatus } from "../../game/core/contracts";
+import { DAY_LABELS, DEFAULT_COLORS, PHILOSOPHY_LABELS } from "../../game/core/federation";
+import Crest from "../federation/Crest";
 import styles from "./Dashboard.module.css";
 
 function formatDate(iso: string): string {
@@ -24,28 +26,10 @@ export default function Dashboard() {
   const roster = useCareerStore((s) => s.roster);
   const titles = useCareerStore((s) => s.titles);
   const open = useCareerStore((s) => s.open);
-  const rename = useCareerStore((s) => s.rename);
-
-  const [name, setName] = useState("");
-  const [feedback, setFeedback] = useState<string | null>(null);
-  const [renaming, setRenaming] = useState(false);
 
   useEffect(() => {
     if (saveId) void open(saveId);
   }, [saveId, open]);
-
-  useEffect(() => {
-    if (current) setName(current.federationName);
-  }, [current]);
-
-  async function handleRename(e: FormEvent) {
-    e.preventDefault();
-    if (!saveId) return;
-    setRenaming(true);
-    const res = await rename(saveId, name);
-    setRenaming(false);
-    setFeedback(res.error ?? "Federazione rinominata e salvata.");
-  }
 
   if (!current) {
     return (
@@ -57,6 +41,7 @@ export default function Dashboard() {
   }
 
   const payroll = roster.reduce((sum, w) => sum + w.contract.weeklyPay, 0);
+  const shows = current.shows ?? [];
 
   return (
     <div className={styles.page}>
@@ -64,32 +49,36 @@ export default function Dashboard() {
         <Link to="/" className={styles.back}>
           ← Federazioni
         </Link>
-        <h1>{current.federationName}</h1>
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <Crest
+            name={current.federationName}
+            colors={current.colors ?? DEFAULT_COLORS}
+            logo={current.logo ?? null}
+            size={44}
+          />
+          <h1>{current.federationName}</h1>
+        </div>
         <p className={styles.muted}>Benvenuto in federazione, GM {current.gmName}.</p>
       </header>
 
       <div className={styles.grid}>
         <section className={styles.card}>
-          <h2>Identità</h2>
-          <form onSubmit={handleRename}>
-            <div className="field">
-              <label htmlFor="federationName">Nome della federazione</label>
-              <input
-                id="federationName"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                maxLength={40}
-              />
-            </div>
-            <button type="submit" className="btn btn-primary" disabled={renaming}>
-              {renaming ? "Salvataggio…" : "Salva"}
-            </button>
-            {feedback && (
-              <p className={styles.feedback} role="status">
-                {feedback}
-              </p>
-            )}
-          </form>
+          <h2>Federazione</h2>
+          <p>
+            <strong>{PHILOSOPHY_LABELS[current.philosophy ?? "spettacolare"]}</strong> — filosofia
+            di booking
+          </p>
+          <ul className={styles.rosterList}>
+            {shows.map((s) => (
+              <li key={s.id}>
+                <strong>{s.name}</strong> — {DAY_LABELS[s.day] ?? "giorno da definire"}
+              </li>
+            ))}
+            {shows.length === 0 && <li>Nessuno show programmato, per ora.</li>}
+          </ul>
+          <Link to={`/career/${saveId}/federation`} className="btn btn-primary">
+            Gestisci identità
+          </Link>
         </section>
 
         <section className={styles.card}>
