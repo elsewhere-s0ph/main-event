@@ -1,6 +1,7 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useCareerStore } from "../../stores/careerStore";
+import { contractStatus } from "../../game/core/contracts";
 import styles from "./Dashboard.module.css";
 
 function formatDate(iso: string): string {
@@ -53,6 +54,8 @@ export default function Dashboard() {
       </div>
     );
   }
+
+  const payroll = roster.reduce((sum, w) => sum + w.contract.weeklyPay, 0);
 
   return (
     <div className={styles.page}>
@@ -113,17 +116,28 @@ export default function Dashboard() {
         <section className={styles.card}>
           <h2>Roster ({roster.length})</h2>
           <ul className={styles.rosterList}>
-            {roster.map((w) => (
-              <li key={w.id}>
-                <Link className={styles.rosterLink} to={`/career/${saveId}/wrestler/${w.id}`}>
-                  <strong>{w.name}</strong> — {w.nickname}{" "}
-                  <span className={styles.tag}>
-                    · {alignmentLabel(w.alignment)} · {bodyTypeLabel(w.bodyType)}
-                  </span>
-                </Link>
-              </li>
-            ))}
+            {roster.map((w) => {
+              const status = contractStatus(w.contract, current.inGameDate);
+              return (
+                <li key={w.id}>
+                  <Link className={styles.rosterLink} to={`/career/${saveId}/wrestler/${w.id}`}>
+                    <strong>{w.name}</strong> — {w.nickname}{" "}
+                    <span className={styles.tag}>
+                      · {alignmentLabel(w.alignment)} · {bodyTypeLabel(w.bodyType)}
+                    </span>
+                    {status !== "attivo" && (
+                      <span className={status === "scaduto" ? styles.tagDanger : styles.tagWarn}>
+                        {" "}· contratto {status}
+                      </span>
+                    )}
+                  </Link>
+                </li>
+              );
+            })}
           </ul>
+          <p className={styles.payroll}>
+            Massa salariale: {payroll.toLocaleString("it-IT")} a settimana.
+          </p>
           <p className={styles.muted}>
             Il roster nasce dal seed della federazione: stesso seed, stessi atleti. Tocca un
             atleta per aprire la sua scheda.
