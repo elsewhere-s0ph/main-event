@@ -1,0 +1,365 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Main Event — Logo Kit</title>
+<style>
+  :root { --bg:#070a18; --card:#0b0e1a; --surface:#141a2e; --line:#1c2340; --text:#f2f4fa; --muted:#9aa3c0; --gold:#e8b84b; --teal:#2dd4bf; }
+  * { box-sizing: border-box; }
+  body { margin:0; padding:32px 20px 64px; background:var(--bg); color:var(--text); font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif; line-height:1.5; }
+  .wrap { max-width:1100px; margin:0 auto; }
+  h1 { font-size:1.55rem; margin:0 0 4px; } h1 .star { color:var(--gold); }
+  .sub { color:var(--muted); margin:0 0 28px; max-width:74ch; }
+  h2 { font-size:1.15rem; margin:40px 0 6px; border-bottom:1px solid var(--line); padding-bottom:8px; }
+  .secdesc { color:var(--muted); margin:0 0 18px; max-width:74ch; font-size:.92rem; }
+  .grid { display:grid; gap:18px; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); }
+  .tile { border-radius:14px; border:1px solid var(--line); padding:20px; display:flex; flex-direction:column; gap:12px; align-items:center; justify-content:center; min-height:220px; }
+  .tile.dark { background:var(--bg); } .tile.navy { background:#0b0e1a; } .tile.light { background:#f2f4fa; } .tile.cream { background:#f7f3ec; }
+  .tile svg { max-width:100%; height:auto; display:block; }
+  .tile .cap { font-size:.72rem; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); text-align:center; }
+  .tile.light .cap, .tile.cream .cap { color:#5a6280; }
+  .mask-circle { border-radius:50%; overflow:hidden; }
+  .btnrow { display:flex; gap:8px; flex-wrap:wrap; margin-top:14px; }
+  button { background:var(--surface); color:var(--text); border:1px solid var(--line); border-radius:9px; padding:7px 12px; font:inherit; font-size:.82rem; font-weight:600; cursor:pointer; }
+  button:hover { border-color:var(--gold); color:var(--gold); }
+  pre { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:16px; overflow-x:auto; font-size:.78rem; line-height:1.55; color:#c9d1e8; }
+  .swatches { display:flex; gap:12px; flex-wrap:wrap; }
+  .swatch { display:flex; flex-direction:column; gap:5px; align-items:center; font-size:.68rem; color:var(--muted); }
+  .swatch i { width:64px; height:40px; border-radius:8px; border:1px solid rgba(255,255,255,.14); display:block; }
+  ul.rules { color:var(--muted); font-size:.9rem; padding-left:20px; }
+  ul.rules b { color:var(--text); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Main Event <span class="star">★</span> — Logo Kit</h1>
+  <p class="sub">Kit ufficiale della PWA Main Event (direzione «Cintura del campione», v2): piatto dorato con bevel, monogramma inciso, archi con lettering. Le SVG di questa pagina sono le stesse pushate in <code>src/assets/</code>; da qui si esportano tutte le PNG dello standard. I PNG esportati vanno ricompressi (squoosh/tinypng) e caricati a mano via web: il push binario via API corrompe le immagini.</p>
+
+  <h2>Icone app</h2>
+  <div class="grid">
+    <div class="tile navy"><div id="t-icon" style="width:170px"></div><div class="cap">icon.svg · any</div></div>
+    <div class="tile dark"><div id="t-mask" style="width:170px"></div><div class="cap">icon-maskable.svg · full-bleed</div></div>
+    <div class="tile dark"><div id="t-mask-circle" class="mask-circle" style="width:170px"></div><div class="cap">maskable · maschera circolare</div></div>
+    <div class="tile light"><div id="t-icon-light" style="width:150px"></div><div class="cap">su fondo chiaro</div></div>
+    <div class="tile cream"><div style="display:flex;gap:14px;align-items:flex-end"><div id="t-fav64"></div><div id="t-fav32"></div><div id="t-fav16"></div></div><div class="cap">favicon.svg · 64 / 32 / 16 px</div></div>
+  </div>
+  <div class="btnrow" id="btn-icons"></div>
+
+  <h2>Crest</h2>
+  <div class="grid">
+    <div class="tile dark"><div id="t-crest" style="width:420px"></div><div class="cap">crest.svg · su scuro</div></div>
+    <div class="tile cream"><div id="t-crest-light" style="width:420px"></div><div class="cap">crest.svg · su chiaro</div></div>
+    <div class="tile navy"><div id="t-crest-mono" style="width:420px;color:#e8b84b"></div><div class="cap">crest-mono.svg · oro</div></div>
+    <div class="tile light"><div id="t-crest-mono-light" style="width:420px;color:#171426"></div><div class="cap">crest-mono.svg · inchiostro</div></div>
+  </div>
+  <div class="btnrow" id="btn-crest"></div>
+
+  <h2>Wordmark</h2>
+  <div class="grid">
+    <div class="tile dark"><div id="t-word" style="width:520px"></div><div class="cap">wordmark.svg · su scuro</div></div>
+    <div class="tile cream"><div id="t-word-light" style="width:520px"></div><div class="cap">wordmark-chiaro.svg · su chiaro</div></div>
+  </div>
+  <div class="btnrow" id="btn-word"></div>
+
+  <h2>Export PNG</h2>
+  <div class="btnrow" id="btn-png"></div>
+
+  <h2>manifest.webmanifest (snippet per il C7)</h2>
+<pre id="snip-manifest"></pre>
+
+  <h2>&lt;head&gt; della PWA (snippet)</h2>
+<pre id="snip-head"></pre>
+
+  <h2>JSON-LD (snippet landing)</h2>
+<pre id="snip-ld"></pre>
+
+  <h2>Press kit</h2>
+  <div class="swatches" id="palette"></div>
+  <ul class="rules">
+    <li><b>Tipografia:</b> serif incisa (Georgia, universale e senza dipendenze; sostituibile con Fraunces self-hosted in landing) + maiuscolo spaziato in sans per il sottotitolo.</li>
+    <li><b>Spaziatura:</b> attorno al crest lasciare sempre aria pari all'altezza della stella; mai sovrapporre testi al piatto.</li>
+    <li><b>Vieta:</b> ruotare, distorcere, cambiare i colori dell'oro, aggiungere ombre esterne o contorni.</li>
+    <li><b>Sfondi:</b> navy #0b0e1a è lo sfondo di casa; il crest regge anche su crema grazie al bordo proprio; su fondi chiari usare wordmark-chiaro o crest-mono inchiostro.</li>
+    <li><b>Mono:</b> un solo colore piatto (oro o inchiostro), mai gradienti nella versione mono.</li>
+    <li><b>Taglia minima:</b> sotto i 40 px usare favicon.svg o il monogramma, mai il crest completo.</li>
+  </ul>
+</div>
+
+<script>
+var STAR = 'M16 4l3.2 7.1 7.8.9-5.7 5.3 1.5 7.7-6.8-3.7-6.8 3.7 1.5-7.7-5.7-5.3 7.8-.9z';
+var SERIF = 'Georgia, serif';
+var SANS = 'system-ui, sans-serif';
+
+var SRC = {};
+
+SRC['crest.svg'] = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 420" role="img" aria-label="Main Event">'
++ '<defs><linearGradient id="meGold" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f9e3a8"/><stop offset=".35" stop-color="#e8b84b"/><stop offset=".75" stop-color="#c1912f"/><stop offset="1" stop-color="#8f6a1e"/></linearGradient>'
++ '<radialGradient id="meField" cx=".5" cy=".42" r=".78"><stop offset="0" stop-color="#1a2140"/><stop offset="1" stop-color="#0b0e1a"/></radialGradient>'
++ '<linearGradient id="meStrap" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1c2340"/><stop offset="1" stop-color="#12172b"/></linearGradient></defs>'
++ '<rect x="12" y="160" width="122" height="100" rx="20" fill="url(#meStrap)" stroke="#2a3352" stroke-width="2"/>'
++ '<rect x="24" y="172" width="98" height="76" rx="14" fill="none" stroke="#e8b84b" stroke-opacity=".55" stroke-width="3" stroke-dasharray="0 14" stroke-linecap="round"/>'
++ '<rect x="506" y="160" width="122" height="100" rx="20" fill="url(#meStrap)" stroke="#2a3352" stroke-width="2"/>'
++ '<rect x="518" y="172" width="98" height="76" rx="14" fill="none" stroke="#e8b84b" stroke-opacity=".55" stroke-width="3" stroke-dasharray="0 14" stroke-linecap="round"/>'
++ '<ellipse cx="320" cy="210" rx="248" ry="174" fill="url(#meGold)"/>'
++ '<ellipse cx="320" cy="210" rx="248" ry="174" fill="none" stroke="#7a5a1c" stroke-width="3"/>'
++ '<ellipse cx="320" cy="204" rx="228" ry="154" fill="none" stroke="#fff3cf" stroke-opacity=".5" stroke-width="3"/>'
++ '<ellipse cx="320" cy="216" rx="228" ry="154" fill="none" stroke="#6b4e14" stroke-opacity=".6" stroke-width="3"/>'
++ '<ellipse cx="320" cy="210" rx="206" ry="134" fill="url(#meField)" stroke="#6b4e14" stroke-width="2"/>'
++ '<path id="meArcTop" d="M 158 240 A 166 112 0 0 1 482 240" fill="none"/>'
++ '<text font-family="' + SERIF + '" font-weight="700" font-size="42" letter-spacing="10" fill="url(#meGold)"><textPath href="#meArcTop" startOffset="50%" text-anchor="middle">MAIN EVENT</textPath></text>'
++ '<g transform="translate(178 182) scale(1.15)"><path d="' + STAR + '" fill="url(#meGold)"/></g>'
++ '<g transform="translate(426 182) scale(1.15)"><path d="' + STAR + '" fill="url(#meGold)"/></g>'
++ '<g font-family="' + SERIF + '" font-weight="700" font-size="150" text-anchor="middle">'
++ '<text x="323" y="295" fill="#04101c" opacity=".75">ME</text>'
++ '<text x="317" y="289" fill="#fff3cf" opacity=".35">ME</text>'
++ '<text x="320" y="292" fill="url(#meGold)">ME</text></g>'
++ '<path id="meArcBot" d="M 186 262 A 148 92 0 0 0 454 262" fill="none"/>'
++ '<text font-family="' + SANS + '" font-weight="600" font-size="19" letter-spacing="7" fill="#9aa3c0"><textPath href="#meArcBot" startOffset="50%" text-anchor="middle">WRESTLING MANAGER</textPath></text>'
++ '</svg>';
+
+SRC['crest-mono.svg'] = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 420" role="img" aria-label="Main Event (mono)">'
++ '<g fill="none" stroke="currentColor">'
++ '<rect x="12" y="160" width="122" height="100" rx="20" stroke-width="4"/>'
++ '<rect x="24" y="172" width="98" height="76" rx="14" stroke-width="3" stroke-dasharray="0 14" stroke-linecap="round"/>'
++ '<rect x="506" y="160" width="122" height="100" rx="20" stroke-width="4"/>'
++ '<rect x="518" y="172" width="98" height="76" rx="14" stroke-width="3" stroke-dasharray="0 14" stroke-linecap="round"/>'
++ '<ellipse cx="320" cy="210" rx="248" ry="174" stroke-width="6"/>'
++ '<ellipse cx="320" cy="210" rx="206" ry="134" stroke-width="2.5"/></g>'
++ '<path id="meArcTopM" d="M 158 240 A 166 112 0 0 1 482 240" fill="none"/>'
++ '<text font-family="' + SERIF + '" font-weight="700" font-size="42" letter-spacing="10" fill="currentColor"><textPath href="#meArcTopM" startOffset="50%" text-anchor="middle">MAIN EVENT</textPath></text>'
++ '<g transform="translate(178 182) scale(1.15)"><path d="' + STAR + '" fill="currentColor"/></g>'
++ '<g transform="translate(426 182) scale(1.15)"><path d="' + STAR + '" fill="currentColor"/></g>'
++ '<text x="320" y="292" text-anchor="middle" font-family="' + SERIF + '" font-weight="700" font-size="150" fill="currentColor">ME</text>'
++ '<path id="meArcBotM" d="M 186 262 A 148 92 0 0 0 454 262" fill="none"/>'
++ '<text font-family="' + SANS + '" font-weight="600" font-size="19" letter-spacing="7" fill="currentColor"><textPath href="#meArcBotM" startOffset="50%" text-anchor="middle">WRESTLING MANAGER</textPath></text>'
++ '</svg>';
+
+SRC['icon.svg'] = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Main Event">'
++ '<defs><linearGradient id="meGoldI" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f9e3a8"/><stop offset=".35" stop-color="#e8b84b"/><stop offset=".75" stop-color="#c1912f"/><stop offset="1" stop-color="#8f6a1e"/></linearGradient>'
++ '<radialGradient id="meFieldI" cx=".5" cy=".42" r=".78"><stop offset="0" stop-color="#1a2140"/><stop offset="1" stop-color="#0b0e1a"/></radialGradient>'
++ '<radialGradient id="meGlowI" cx=".5" cy=".42" r=".72"><stop offset="0" stop-color="#e8b84b" stop-opacity=".22"/><stop offset="1" stop-color="#e8b84b" stop-opacity="0"/></radialGradient></defs>'
++ '<rect width="512" height="512" rx="112" fill="#0b0e1a"/>'
++ '<rect width="512" height="512" rx="112" fill="url(#meGlowI)"/>'
++ '<ellipse cx="256" cy="268" rx="192" ry="142" fill="url(#meGoldI)"/>'
++ '<ellipse cx="256" cy="268" rx="192" ry="142" fill="none" stroke="#7a5a1c" stroke-width="3"/>'
++ '<ellipse cx="256" cy="262" rx="176" ry="126" fill="none" stroke="#fff3cf" stroke-opacity=".45" stroke-width="3"/>'
++ '<ellipse cx="256" cy="268" rx="156" ry="108" fill="url(#meFieldI)" stroke="#6b4e14" stroke-width="2"/>'
++ '<path id="iArc" d="M 128 288 A 130 88 0 0 1 384 288" fill="none"/>'
++ '<text font-family="' + SERIF + '" font-weight="700" font-size="30" letter-spacing="6" fill="url(#meGoldI)"><textPath href="#iArc" startOffset="50%" text-anchor="middle">MAIN EVENT</textPath></text>'
++ '<g transform="translate(128 216) scale(.8)"><path d="' + STAR + '" fill="url(#meGoldI)"/></g>'
++ '<g transform="translate(358 216) scale(.8)"><path d="' + STAR + '" fill="url(#meGoldI)"/></g>'
++ '<g font-family="' + SERIF + '" font-weight="700" font-size="120" text-anchor="middle">'
++ '<text x="259" y="349" fill="#04101c" opacity=".75">ME</text>'
++ '<text x="253" y="343" fill="#fff3cf" opacity=".35">ME</text>'
++ '<text x="256" y="346" fill="url(#meGoldI)">ME</text></g>'
++ '</svg>';
+
+SRC['icon-maskable.svg'] = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Main Event">'
++ '<defs><linearGradient id="meGoldM" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f9e3a8"/><stop offset=".35" stop-color="#e8b84b"/><stop offset=".75" stop-color="#c1912f"/><stop offset="1" stop-color="#8f6a1e"/></linearGradient>'
++ '<radialGradient id="meFieldM" cx=".5" cy=".42" r=".78"><stop offset="0" stop-color="#1a2140"/><stop offset="1" stop-color="#0b0e1a"/></radialGradient>'
++ '<radialGradient id="meGlowM" cx=".5" cy=".42" r=".72"><stop offset="0" stop-color="#e8b84b" stop-opacity=".2"/><stop offset="1" stop-color="#e8b84b" stop-opacity="0"/></radialGradient></defs>'
++ '<rect width="512" height="512" fill="#0b0e1a"/>'
++ '<rect width="512" height="512" fill="url(#meGlowM)"/>'
++ '<ellipse cx="256" cy="264" rx="158" ry="118" fill="url(#meGoldM)"/>'
++ '<ellipse cx="256" cy="259" rx="144" ry="104" fill="none" stroke="#fff3cf" stroke-opacity=".45" stroke-width="3"/>'
++ '<ellipse cx="256" cy="264" rx="128" ry="88" fill="url(#meFieldM)" stroke="#6b4e14" stroke-width="2"/>'
++ '<path id="mArc" d="M 142 272 A 116 72 0 0 1 370 272" fill="none"/>'
++ '<text font-family="' + SERIF + '" font-weight="700" font-size="24" letter-spacing="5" fill="url(#meGoldM)"><textPath href="#mArc" startOffset="50%" text-anchor="middle">MAIN EVENT</textPath></text>'
++ '<g transform="translate(133 233) scale(.7)"><path d="' + STAR + '" fill="url(#meGoldM)"/></g>'
++ '<g transform="translate(353 233) scale(.7)"><path d="' + STAR + '" fill="url(#meGoldM)"/></g>'
++ '<g font-family="' + SERIF + '" font-weight="700" font-size="96" text-anchor="middle">'
++ '<text x="259" y="323" fill="#04101c" opacity=".75">ME</text>'
++ '<text x="253" y="317" fill="#fff3cf" opacity=".35">ME</text>'
++ '<text x="256" y="320" fill="url(#meGoldM)">ME</text></g>'
++ '</svg>';
+
+SRC['favicon.svg'] = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Main Event">'
++ '<rect width="64" height="64" rx="14" fill="#0b0e1a"/>'
++ '<ellipse cx="32" cy="34" rx="27" ry="20" fill="#e8b84b"/>'
++ '<ellipse cx="32" cy="33.4" rx="24" ry="17.4" fill="none" stroke="#fff3cf" stroke-opacity=".5" stroke-width="1.2"/>'
++ '<ellipse cx="32" cy="34" rx="21.5" ry="15" fill="#0b0e1a"/>'
++ '<text x="32" y="40.5" text-anchor="middle" font-family="' + SERIF + '" font-weight="700" font-size="20" fill="#e8b84b">ME</text>'
++ '</svg>';
+
+SRC['wordmark.svg'] = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 170" role="img" aria-label="Main Event — wordmark">'
++ '<defs><linearGradient id="meGoldW" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f9e3a8"/><stop offset=".35" stop-color="#e8b84b"/><stop offset=".75" stop-color="#c1912f"/><stop offset="1" stop-color="#8f6a1e"/></linearGradient></defs>'
++ '<g transform="translate(28 44) scale(1.6)"><path d="' + STAR + '" fill="url(#meGoldW)"/></g>'
++ '<text x="96" y="92" font-family="' + SERIF + '" font-weight="700" font-size="62" letter-spacing="12" fill="url(#meGoldW)">MAIN EVENT</text>'
++ '<g transform="translate(648 44) scale(1.6)"><path d="' + STAR + '" fill="url(#meGoldW)" opacity=".85"/></g>'
++ '<text x="98" y="136" font-family="' + SANS + '" font-weight="600" font-size="19" letter-spacing="11" fill="#9aa3c0">WRESTLING MANAGER</text>'
++ '</svg>';
+
+SRC['wordmark-chiaro.svg'] = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 170" role="img" aria-label="Main Event — wordmark chiaro">'
++ '<g transform="translate(28 44) scale(1.6)"><path d="' + STAR + '" fill="#e8b84b"/></g>'
++ '<text x="96" y="92" font-family="' + SERIF + '" font-weight="700" font-size="62" letter-spacing="12" fill="#171426">MAIN EVENT</text>'
++ '<g transform="translate(648 44) scale(1.6)"><path d="' + STAR + '" fill="#e8b84b" opacity=".85"/></g>'
++ '<text x="98" y="136" font-family="' + SANS + '" font-weight="600" font-size="19" letter-spacing="11" fill="#5a6280">WRESTLING MANAGER</text>'
++ '</svg>';
+
+function put(id, svg, size) {
+  var el = document.getElementById(id);
+  if (!el) return;
+  el.innerHTML = svg;
+  var s = el.querySelector('svg');
+  if (s && size) { s.setAttribute('width', size.w); s.setAttribute('height', size.h); }
+}
+put('t-icon', SRC['icon.svg']);
+put('t-icon-light', SRC['icon.svg']);
+put('t-mask', SRC['icon-maskable.svg']);
+put('t-mask-circle', SRC['icon-maskable.svg']);
+put('t-fav64', SRC['favicon.svg'], { w: 64, h: 64 });
+put('t-fav32', SRC['favicon.svg'], { w: 32, h: 32 });
+put('t-fav16', SRC['favicon.svg'], { w: 16, h: 16 });
+put('t-crest', SRC['crest.svg']);
+put('t-crest-light', SRC['crest.svg']);
+put('t-crest-mono', SRC['crest-mono.svg']);
+put('t-crest-mono-light', SRC['crest-mono.svg']);
+put('t-word', SRC['wordmark.svg']);
+put('t-word-light', SRC['wordmark-chiaro.svg']);
+
+var PAL = [['#0b0e1a','navy notte'],['#141a2e','superficie'],['#1c2340','linea'],['#e8b84b','oro'],['#f6d98a','oro chiaro'],['#a87c26','oro profondo'],['#f2f4fa','gesso'],['#9aa3c0','muted']];
+document.getElementById('palette').innerHTML = PAL.map(function (p) {
+  return '<div class="swatch"><i style="background:' + p[0] + '"></i>' + p[0] + '<span>' + p[1] + '</span></div>';
+}).join('');
+
+function exportPNG(svgString, w, h, name, bg) {
+  var blob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
+  var url = URL.createObjectURL(blob);
+  var img = new Image();
+  img.onload = function () {
+    var c = document.createElement('canvas');
+    c.width = w; c.height = h;
+    var ctx = c.getContext('2d');
+    if (bg) { ctx.fillStyle = bg; ctx.fillRect(0, 0, w, h); }
+    ctx.drawImage(img, 0, 0, w, h);
+    c.toBlob(function (b) {
+      var a = document.createElement('a');
+      a.href = URL.createObjectURL(b); a.download = name; a.click();
+      setTimeout(function () { URL.revokeObjectURL(a.href); }, 4000);
+    }, 'image/png');
+    URL.revokeObjectURL(url);
+  };
+  img.src = url;
+}
+function exportOG() {
+  var c = document.createElement('canvas');
+  c.width = 1200; c.height = 630;
+  var ctx = c.getContext('2d');
+  ctx.fillStyle = '#070a18'; ctx.fillRect(0, 0, 1200, 630);
+  var g = ctx.createRadialGradient(600, 240, 60, 600, 240, 560);
+  g.addColorStop(0, 'rgba(232,184,75,.16)'); g.addColorStop(1, 'rgba(232,184,75,0)');
+  ctx.fillStyle = g; ctx.fillRect(0, 0, 1200, 630);
+  function load(svg) {
+    return new Promise(function (res) {
+      var url = URL.createObjectURL(new Blob([svg], { type: 'image/svg+xml;charset=utf-8' }));
+      var im = new Image();
+      im.onload = function () { res(im); URL.revokeObjectURL(url); };
+      im.src = url;
+    });
+  }
+  Promise.all([load(SRC['crest.svg']), load(SRC['wordmark.svg'])]).then(function (imgs) {
+    ctx.drawImage(imgs[0], 290, 8, 620, 407);
+    ctx.drawImage(imgs[1], 320, 448, 560, 132);
+    c.toBlob(function (b) {
+      var a = document.createElement('a');
+      a.href = URL.createObjectURL(b); a.download = 'og.png'; a.click();
+      setTimeout(function () { URL.revokeObjectURL(a.href); }, 4000);
+    }, 'image/png');
+  });
+}
+function btn(label, fn) {
+  var b = document.createElement('button');
+  b.textContent = label; b.type = 'button'; b.addEventListener('click', fn);
+  return b;
+}
+var bi = document.getElementById('btn-icons');
+bi.append(
+  btn('icon-any 192', function () { exportPNG(SRC['icon.svg'], 192, 192, 'icon-192.png'); }),
+  btn('icon-any 512', function () { exportPNG(SRC['icon.svg'], 512, 512, 'icon-512.png'); }),
+  btn('maskable 192', function () { exportPNG(SRC['icon-maskable.svg'], 192, 192, 'maskable-192.png'); }),
+  btn('maskable 512', function () { exportPNG(SRC['icon-maskable.svg'], 512, 512, 'maskable-512.png'); }),
+  btn('apple-touch 180', function () { exportPNG(SRC['icon-maskable.svg'], 180, 180, 'apple-touch-icon.png', '#0b0e1a'); }),
+  btn('favicon 32', function () { exportPNG(SRC['favicon.svg'], 32, 32, 'favicon-32.png'); }),
+  btn('favicon 16', function () { exportPNG(SRC['favicon.svg'], 16, 16, 'favicon-16.png'); }),
+  btn('shortcut 96', function () { exportPNG(SRC['favicon.svg'], 96, 96, 'shortcut-96.png'); })
+);
+var bc = document.getElementById('btn-crest');
+bc.append(
+  btn('crest 1280×840', function () { exportPNG(SRC['crest.svg'], 1280, 840, 'crest-1280.png'); }),
+  btn('crest 640×420', function () { exportPNG(SRC['crest.svg'], 640, 420, 'crest-640.png'); }),
+  btn('copia SVG crest', function () { navigator.clipboard.writeText(SRC['crest.svg']); })
+);
+var bw = document.getElementById('btn-word');
+bw.append(
+  btn('wordmark 1440×340', function () { exportPNG(SRC['wordmark.svg'], 1440, 340, 'wordmark-1440.png'); }),
+  btn('copia SVG wordmark', function () { navigator.clipboard.writeText(SRC['wordmark.svg']); })
+);
+document.getElementById('btn-png').append(btn('og.png 1200×630 (crest + wordmark su navy)', exportOG));
+
+document.getElementById('snip-manifest').textContent = '{
+'
++ '  "id": "/",
+'
++ '  "name": "Main Event",
+'
++ '  "short_name": "Main Event",
+'
++ '  "description": "Gestisci la tua federazione di wrestling: roster, titoli, rivalità e match che si animano da soli.",
+'
++ '  "lang": "it",
+'
++ '  "dir": "ltr",
+'
++ '  "start_url": "./",
+'
++ '  "scope": "./",
+'
++ '  "display": "standalone",
+'
++ '  "background_color": "#0b0e1a",
+'
++ '  "theme_color": "#0b0e1a",
+'
++ '  "icons": [
+'
++ '    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+'
++ '    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+'
++ '    { "src": "icons/maskable-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+'
++ '    { "src": "icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" },
+'
++ '    { "src": "icons/icon.svg", "sizes": "any", "type": "image/svg+xml" }
+'
++ '  ]
+'
++ '}';
+
+document.getElementById('snip-head').textContent = '<link rel="icon" type="image/svg+xml" href="/favicon.svg" />\n'
++ '<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />\n'
++ '<meta name="theme-color" content="#0b0e1a" />\n'
++ '<meta name="apple-mobile-web-app-capable" content="yes" />\n'
++ '<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />\n'
++ '<meta name="apple-mobile-web-app-title" content="Main Event" />\n'
++ '<meta property="og:title" content="Main Event — il gestionale di wrestling" />\n'
++ '<meta property="og:description" content="Gestisci la tua federazione: roster, titoli, rivalità e match che si animano da soli." />\n'
++ '<meta property="og:image" content="/og.png" />\n'
++ '<meta property="og:image:alt" content="Piatto della cintura Main Event su fondo notte" />\n'
++ '<meta name="twitter:card" content="summary_large_image" />';
+
+document.getElementById('snip-ld').textContent = '<script type="application/ld+json">\n'
++ '{\n'
++ '  "@context": "https://schema.org",\n'
++ '  "@type": "SoftwareApplication",\n'
++ '  "name": "Main Event",\n'
++ '  "applicationCategory": "GameApplication",\n'
++ '  "operatingSystem": "Web",\n'
++ '  "description": "Gestisci la tua federazione di wrestling: roster, titoli, rivalità e match che si animano da soli.",\n'
++ '  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "EUR" }\n'
++ '}\n'
++ '<\/script>';
+</script>
+</body>
+</html>
