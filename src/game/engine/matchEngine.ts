@@ -25,9 +25,17 @@ const MOVES: readonly MoveDef[] = [
   { id: "elbow", name: "Gomitata", kind: "strike", base: 5, favors: "agility", durMs: 1000 },
   { id: "clothesline", name: "Clothesline", kind: "strike", base: 7, favors: "agility", durMs: 1000 },
   { id: "dropkick", name: "Dropkick", kind: "strike", base: 8, favors: "agility", durMs: 1100 },
+  { id: "superkick", name: "Superkick", kind: "strike", base: 9, favors: "agility", durMs: 1100 },
+  { id: "enzuigiri", name: "Enzuigiri", kind: "strike", base: 8, favors: "agility", durMs: 1100 },
+  { id: "cutter", name: "Cutter", kind: "strike", base: 9, favors: "agility", durMs: 1000 },
+  { id: "moonsault", name: "Moonsault", kind: "strike", base: 10, favors: "agility", durMs: 1200 },
   { id: "bodyslam", name: "Body slam", kind: "grapple", base: 9, favors: "power", durMs: 1500 },
   { id: "powerslam", name: "Powerslam", kind: "grapple", base: 10, favors: "power", durMs: 1600 },
+  { id: "spinebuster", name: "Spinebuster", kind: "grapple", base: 10, favors: "power", durMs: 1500 },
+  { id: "ddt", name: "DDT", kind: "grapple", base: 11, favors: "power", durMs: 1500 },
   { id: "suplex", name: "Suplex verticale", kind: "grapple", base: 12, favors: "power", durMs: 1800 },
+  { id: "brainbuster", name: "Brainbuster", kind: "grapple", base: 12, favors: "power", durMs: 1700 },
+  { id: "chokeslam", name: "Chokeslam", kind: "grapple", base: 13, favors: "power", durMs: 1700 },
 ];
 
 const DUR = {
