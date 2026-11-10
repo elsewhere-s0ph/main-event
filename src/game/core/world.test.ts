@@ -71,7 +71,9 @@ describe("weeklyStandings", () => {
   it("la quota di mercato copre il totale", () => {
     const rivals = generateRivalFederations("SEED123");
     const standings = weeklyStandings("Fed", 5000, 70, rivals, "2027-01-04", "SEED123");
-    const total = standings.reduce((sum, s) => sum + shareOf([s], s.id), 0);
-    expect(total).toBe(100);
+    const total = standings.reduce((sum, s) => sum + shareOf(standings, s.id), 0);
+    // Le quote sono arrotondate per federazione: la somma resta vicina al 100.
+    expect(total).toBeGreaterThanOrEqual(98);
+    expect(total).toBeLessThanOrEqual(102);
   });
 });
