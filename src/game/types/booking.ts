@@ -10,12 +10,21 @@ export type SegmentKind =
   | "celebrazione"
   | "annuncio";
 
+export type MatchType =
+  | "singolo"
+  | "tag"
+  | "triple"
+  | "fatal4"
+  | "cage"
+  | "ladder"
+  | "hardcore";
+
 export interface BookedMatch {
   id: string;
-  /** v1 del booking: il motore simula gli incontri uno contro uno. */
-  type: "singolo";
-  /** Esattamente due atleti, distinti. */
-  wrestlerIds: [string, string];
+  /** v1: solo singoli; C6 aggiunge tag, triple threat, fatal 4-way e stipulazioni. */
+  type: MatchType;
+  /** Da 2 a 4 atleti secondo il tipo, tutti distinti. */
+  wrestlerIds: string[];
   /** Titolo in palio: il campione in carica deve difenderlo in questo match. */
   titleId: string | null;
 }
