@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 420" role="img" aria-label="Main Event">
+  <defs><linearGradient id="meGold" x1="0" y1="0" x2="0" y2="1">
+  <stop offset="0" stop-color="#f9e3a8"/><stop offset=".35" stop-color="#e8b84b"/>
+  <stop offset=".75" stop-color="#c1912f"/><stop offset="1" stop-color="#8f6a1e"/>
+</linearGradient><radialGradient id="meField" cx=".5" cy=".42" r=".78">
+  <stop offset="0" stop-color="#1a2140"/><stop offset="1" stop-color="#0b0e1a"/>
+</radialGradient>
+    <linearGradient id="meStrap" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1c2340"/><stop offset="1" stop-color="#12172b"/>
+    </linearGradient>
+  </defs>
+  <rect x="12" y="160" width="122" height="100" rx="20" fill="url(#meStrap)" stroke="#2a3352" stroke-width="2"/>
+  <rect x="24" y="172" width="98" height="76" rx="14" fill="none" stroke="#e8b84b" stroke-opacity=".55" stroke-width="3" stroke-dasharray="0 14" stroke-linecap="round"/>
+  <rect x="506" y="160" width="122" height="100" rx="20" fill="url(#meStrap)" stroke="#2a3352" stroke-width="2"/>
+  <rect x="518" y="172" width="98" height="76" rx="14" fill="none" stroke="#e8b84b" stroke-opacity=".55" stroke-width="3" stroke-dasharray="0 14" stroke-linecap="round"/>
+  <ellipse cx="320" cy="210" rx="248" ry="174" fill="url(#meGold)"/>
+  <ellipse cx="320" cy="210" rx="248" ry="174" fill="none" stroke="#7a5a1c" stroke-width="3"/>
+  <ellipse cx="320" cy="204" rx="228" ry="154" fill="none" stroke="#fff3cf" stroke-opacity=".5" stroke-width="3"/>
+  <ellipse cx="320" cy="216" rx="228" ry="154" fill="none" stroke="#6b4e14" stroke-opacity=".6" stroke-width="3"/>
+  <ellipse cx="320" cy="210" rx="206" ry="134" fill="url(#meField)" stroke="#6b4e14" stroke-width="2"/>
+  <path id="meArcTop" d="M 158 240 A 166 112 0 0 1 482 240" fill="none"/>
+  <text font-family="Georgia, 'Times New Roman', serif" font-weight="700" font-size="42" letter-spacing="10" fill="url(#meGold)">
+    <textPath href="#meArcTop" startOffset="50%" text-anchor="middle">MAIN EVENT</textPath>
+  </text>
+  <g transform="translate(178 182) scale(1.15)"><path d="M16 4l3.2 7.1 7.8.9-5.7 5.3 1.5 7.7-6.8-3.7-6.8 3.7 1.5-7.7-5.7-5.3 7.8-.9z" fill="url(#meGold)"/></g>
+  <g transform="translate(426 182) scale(1.15)"><path d="M16 4l3.2 7.1 7.8.9-5.7 5.3 1.5 7.7-6.8-3.7-6.8 3.7 1.5-7.7-5.7-5.3 7.8-.9z" fill="url(#meGold)"/></g>
+  <g font-family="Georgia, 'Times New Roman', serif" font-weight="700" font-size="150" text-anchor="middle">
+    <text x="323" y="295" fill="#04101c" opacity=".75">ME</text>
+    <text x="317" y="289" fill="#fff3cf" opacity=".35">ME</text>
+    <text x="320" y="292" fill="url(#meGold)">ME</text>
+  </g>
+  <path id="meArcBot" d="M 186 262 A 148 92 0 0 0 454 262" fill="none"/>
+  <text font-family="system-ui, 'Segoe UI', sans-serif" font-weight="600" font-size="19" letter-spacing="7" fill="#9aa3c0">
+    <textPath href="#meArcBot" startOffset="50%" text-anchor="middle">WRESTLING MANAGER</textPath>
+  </text>
+</svg>
