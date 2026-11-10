@@ -181,6 +181,69 @@
   font-weight: 600;
 }
 
+.statusRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+
+.badge {
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+}
+
+.badgeOk {
+  background: rgba(45, 212, 191, 0.15);
+  color: var(--teal);
+}
+
+.badgeWarn {
+  background: rgba(232, 184, 75, 0.18);
+  color: var(--gold);
+}
+
+.badgeDanger {
+  background: rgba(239, 107, 107, 0.15);
+  color: var(--danger);
+}
+
+.renewRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin: 12px 0;
+}
+
+.renewBtn {
+  border: 1px solid var(--surface-2);
+  background: var(--surface);
+  color: var(--text);
+  border-radius: 10px;
+  padding: 8px 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.renewBtn:hover:not(:disabled) {
+  border-color: var(--gold);
+  color: var(--gold);
+}
+
+.renewBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.releaseRow {
+  margin-top: 4px;
+}
+
 .dl {
   display: grid;
   grid-template-columns: auto 1fr;
