@@ -1,7 +1,8 @@
 import { db } from "../database";
-import { SCHEMA_VERSION, type Career } from "../../game/types/career";
+import { SCHEMA_VERSION, type Career, type CareerFinance } from "../../game/types/career";
 import { federationNameSchema, validateCareerInput } from "../../game/core/careerSchema";
 import { defaultIdentity, validateIdentity } from "../../game/core/federation";
+import { STARTING_BALANCE } from "../../game/core/economy";
 import { removeRoster } from "./rosterRepository";
 import { removeTitles } from "./titleRepository";
 import { removeBookingData } from "./bookingRepository";
@@ -27,8 +28,9 @@ export async function getCareer(saveId: string): Promise<Career | undefined> {
 }
 
 /**
- * Migrazione lazy a schema 2: riempie l'identità (colori, filosofia, show, logo)
- * delle federazioni create prima del C3. Nessun dato esistente viene toccato.
+ * Migrazione lazy a schema 3: riempie l'identità (colori, filosofia, show, logo)
+ * delle federazioni create prima del C3 e l'economia (bilancio di partenza)
+ * di quelle create prima del C5. Nessun dato esistente viene toccato.
  */
 export async function ensureIdentity(career: Career): Promise<Career> {
   if (
@@ -36,7 +38,8 @@ export async function ensureIdentity(career: Career): Promise<Career> {
     career.colors &&
     career.philosophy &&
     career.shows &&
-    career.shows.length > 0
+    career.shows.length > 0 &&
+    career.finance
   ) {
     return career;
   }
@@ -47,6 +50,7 @@ export async function ensureIdentity(career: Career): Promise<Career> {
     philosophy: career.philosophy ?? defaults.philosophy,
     shows: career.shows && career.shows.length > 0 ? career.shows : defaults.shows,
     logo: career.logo ?? null,
+    finance: career.finance ?? { balance: STARTING_BALANCE, transactions: [] },
     schemaVersion: SCHEMA_VERSION,
   };
   await db.careers.put(patched);
@@ -84,6 +88,7 @@ export async function createCareer(raw: unknown, identity?: unknown): Promise<Ca
     philosophy: identityValue.philosophy,
     shows: identityValue.shows,
     logo: identityValue.logo,
+    finance: { balance: STARTING_BALANCE, transactions: [] },
     createdAt: now,
     updatedAt: now,
   };
@@ -152,3 +157,19 @@ export async function updateInGameDate(saveId: string, date: string): Promise<Ca
   await db.careers.update(saveId, { inGameDate: date, updatedAt: now });
   return (await db.careers.get(saveId)) ?? null;
 }
+
+/**
+ * Aggiorna il bilancio della federazione (C5): il registro delle transazioni
+ * viaggia sempre insieme al saldo. Mai un numero modificato a mano.
+ */
+export async function updateFinance(
+  saveId: string,
+  finance: CareerFinance
+): Promise<Career | null> {
+  const existing = await db.careers.get(saveId);
+  if (!existing) return null;
+  const now = new Date().toISOString();
+  await db.careers.update(saveId, { finance, updatedAt: now });
+  return (await db.careers.get(saveId)) ?? null;
+}
+
