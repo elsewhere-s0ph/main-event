@@ -84,7 +84,7 @@ export default function FederationPage() {
 
   async function handleSave(e: FormEvent) {
     e.preventDefault();
-    if (!saveId) return;
+    if (!saveId || !current) return;
     setSaving(true);
     setFeedback(null);
     let error: string | null = null;
