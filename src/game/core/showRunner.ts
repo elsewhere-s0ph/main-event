@@ -3,6 +3,13 @@ import { simulateMatch } from "../engine/matchEngine";
 import { toWrestlerDef } from "../types/roster";
 import { crownChampion } from "./titles";
 import { advanceRivalry, resolveRivalry } from "./rivalry";
+import {
+  matchIssues,
+  matchTypeById,
+  multiManRating,
+  resolveMultiMatch,
+  ruleFlavor,
+} from "./matchTypes";
 import type { Wrestler } from "../types/roster";
 import type { Championship } from "../types/titles";
 import type { Rivalry } from "../types/rivalry";
@@ -134,6 +141,10 @@ export function runnableIssues(
   const titleById = new Map(titles.map((t) => [t.id, t] as const));
   for (const item of items) {
     if (item.kind === "match") {
+      // Composizione del match: numero di atleti, doppioni, stipulazioni.
+      for (const issue of matchIssues(item.data.type, item.data.wrestlerIds, item.data.titleId)) {
+        issues.push(issue);
+      }
       for (const id of item.data.wrestlerIds) {
         if (!byId.has(id)) issues.push("Un atleta della card non è più nel roster");
       }
@@ -168,11 +179,11 @@ export function runShow(input: RunShowInput): RunShowOutput {
   const rivalriesOut = new Map<string, Rivalry>(rivalries.map((r) => [r.id, { ...r }]));
   const outcomes: ShowEntryOutcome[] = [];
 
-  const rivalryOf = (a: string, b: string): Rivalry | null => {
+  const rivalryOfMatch = (ids: string[]): Rivalry | null => {
     for (const r of rivalriesOut.values()) {
       if (r.status !== "attiva") continue;
       const [x, y] = r.participants;
-      if ((x === a && y === b) || (x === b && y === a)) return r;
+      if (ids.includes(x) && ids.includes(y)) return r;
     }
     return null;
   };
@@ -180,17 +191,54 @@ export function runShow(input: RunShowInput): RunShowOutput {
   for (const item of items) {
     if (item.kind === "match") {
       const match = item.data;
-      const a = byId.get(match.wrestlerIds[0]);
-      const b = byId.get(match.wrestlerIds[1]);
-      if (!a || !b) continue; // la validazione pre-run garantisce il roster
+      const def = matchTypeById(match.type);
+      const participants = match.wrestlerIds
+        .map((id) => byId.get(id))
+        .filter((w): w is Wrestler => Boolean(w));
+      if (participants.length !== def.size) continue; // la validazione pre-run garantisce il roster
       const matchSeed = matchSeedFor(seed, date, showId, match.id);
-      const sim = simulateMatch([toWrestlerDef(a), toWrestlerDef(b)], matchSeed);
-      const winner = sim.wrestlers[sim.winner].id === a.id ? a : b;
-      const loser = winner.id === a.id ? b : a;
-      const rivalry = rivalryOf(a.id, b.id);
       const title = match.titleId
         ? updatedTitles.get(match.titleId) ?? titleById.get(match.titleId) ?? null
         : null;
+      const rivalry = rivalryOfMatch(match.wrestlerIds);
+
+      let winner: Wrestler;
+      let loser: Wrestler;
+      let summary: string;
+      let rating: number;
+
+      if (match.type === "tag" || match.type === "triple" || match.type === "fatal4") {
+        // Match a più atleti: risolti qui, in puro e deterministico.
+        const rng = mulberry32(seedFromString(`${matchSeed}:multi`));
+        const res = resolveMultiMatch(rng, match.type, participants);
+        winner = res.winner;
+        loser = res.loser;
+        summary = res.summary;
+        rating = multiManRating(participants, {
+          titlePrestige: title ? title.prestige : 0,
+          rivalryIntensity: rivalry ? rivalry.intensity : 0,
+          ratingBonus: def.ratingBonus,
+        });
+      } else {
+        const sim = simulateMatch(
+          [toWrestlerDef(participants[0]), toWrestlerDef(participants[1])],
+          matchSeed
+        );
+        winner = sim.wrestlers[sim.winner].id === participants[0].id ? participants[0] : participants[1];
+        loser = winner.id === participants[0].id ? participants[1] : participants[0];
+        const flavorRng = mulberry32(seedFromString(`${matchSeed}:flavor`));
+        summary = sim.summary + ruleFlavor(match.type, winner.name, loser.name, flavorRng);
+        rating = Math.round(
+          clamp(
+            matchRating(participants[0], participants[1], {
+              titlePrestige: title ? title.prestige : 0,
+              rivalryIntensity: rivalry ? rivalry.intensity : 0,
+            }) + def.ratingBonus,
+            5,
+            99
+          )
+        );
+      }
 
       let defense = false;
       let titleChange: MatchOutcome["titleChange"] = null;
@@ -212,11 +260,8 @@ export function runShow(input: RunShowInput): RunShowOutput {
         match,
         winnerId: winner.id,
         loserId: loser.id,
-        summary: sim.summary,
-        rating: matchRating(a, b, {
-          titlePrestige: title ? title.prestige : 0,
-          rivalryIntensity: rivalry ? rivalry.intensity : 0,
-        }),
+        summary,
+        rating,
         seed: matchSeed,
         titleChange,
         defense,
