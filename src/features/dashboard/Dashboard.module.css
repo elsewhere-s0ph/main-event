@@ -1,15 +1,12 @@
 .page {
-  max-width: 860px;
+  max-width: 760px;
   margin: 0 auto;
   padding: 24px 16px 48px;
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
 }
 
 .header h1 {
-  margin: 8px 0 4px;
-  font-size: clamp(1.8rem, 7vw, 2.6rem);
+  margin: 8px 0 2px;
+  font-size: clamp(1.8rem, 6vw, 2.4rem);
   letter-spacing: -0.02em;
 }
 
@@ -27,6 +24,13 @@
   display: grid;
   grid-template-columns: 1fr;
   gap: 16px;
+  margin-top: 24px;
+}
+
+@media (min-width: 720px) {
+  .grid {
+    grid-template-columns: 1fr 1fr;
+  }
 }
 
 .card {
@@ -39,19 +43,6 @@
 .card h2 {
   margin: 0 0 12px;
   font-size: 1.05rem;
-}
-
-.card form {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  align-items: flex-start;
-}
-
-.feedback {
-  color: var(--teal);
-  margin: 0;
-  font-size: 0.9rem;
 }
 
 .dl {
@@ -70,48 +61,52 @@
   margin: 0;
 }
 
-.muted {
-  color: var(--muted);
-}
-
 .rosterList {
   list-style: none;
   margin: 0 0 12px;
   padding: 0;
   display: flex;
   flex-direction: column;
-}
-
-.rosterList li {
-  padding: 8px 0;
-  border-bottom: 1px solid var(--surface-2);
-  font-size: 0.92rem;
-}
-
-.rosterList li:last-child {
-  border-bottom: none;
-}
-
-.rosterList .tag {
-  color: var(--muted);
+  gap: 8px;
 }
 
 .rosterLink {
-  color: inherit;
+  color: var(--text);
   text-decoration: none;
-  display: block;
 }
 
 .rosterLink:hover strong {
   color: var(--gold);
 }
 
-@media (min-width: 720px) {
-  .grid {
-    grid-template-columns: 1fr 1fr;
-  }
+.tag {
+  color: var(--muted);
+  font-size: 0.85rem;
+}
 
-  .grid > .card:last-child {
-    grid-column: 1 / -1;
-  }
+.tagWarn {
+  color: var(--gold);
+  font-size: 0.85rem;
+}
+
+.tagDanger {
+  color: var(--danger);
+  font-size: 0.85rem;
+}
+
+.payroll {
+  font-weight: 600;
+  margin: 0 0 8px;
+}
+
+.muted {
+  color: var(--muted);
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+.feedback {
+  color: var(--teal);
+  margin: 8px 0 0;
+  font-size: 0.9rem;
 }
