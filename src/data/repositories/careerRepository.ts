@@ -1,6 +1,7 @@
 import { db } from "../database";
 import { SCHEMA_VERSION, type Career } from "../../game/types/career";
 import { federationNameSchema, validateCareerInput } from "../../game/core/careerSchema";
+import { defaultIdentity, validateIdentity } from "../../game/core/federation";
 import { removeRoster } from "./rosterRepository";
 import { removeTitles } from "./titleRepository";
 import pkg from "../../../package.json";
@@ -18,12 +19,53 @@ export async function listCareers(): Promise<Career[]> {
 }
 
 export async function getCareer(saveId: string): Promise<Career | undefined> {
-  return db.careers.get(saveId);
+  const career = await db.careers.get(saveId);
+  if (!career) return undefined;
+  return ensureIdentity(career);
 }
 
-export async function createCareer(raw: unknown): Promise<CareerResult> {
+/**
+ * Migrazione lazy a schema 2: riempie l'identità (colori, filosofia, show, logo)
+ * delle federazioni create prima del C3. Nessun dato esistente viene toccato.
+ */
+export async function ensureIdentity(career: Career): Promise<Career> {
+  if (
+    career.schemaVersion >= SCHEMA_VERSION &&
+    career.colors &&
+    career.philosophy &&
+    career.shows &&
+    career.shows.length > 0
+  ) {
+    return career;
+  }
+  const defaults = defaultIdentity();
+  const patched: Career = {
+    ...career,
+    colors: career.colors ?? defaults.colors,
+    philosophy: career.philosophy ?? defaults.philosophy,
+    shows: career.shows && career.shows.length > 0 ? career.shows : defaults.shows,
+    logo: career.logo ?? null,
+    schemaVersion: SCHEMA_VERSION,
+  };
+  await db.careers.put(patched);
+  return patched;
+}
+
+export async function createCareer(raw: unknown, identity?: unknown): Promise<CareerResult> {
   const parsed = validateCareerInput(raw);
   if (!parsed.ok) return { career: null, error: parsed.error };
+
+  let identityValue = defaultIdentity();
+  if (identity !== undefined) {
+    const v = validateIdentity(identity);
+    if (!v.ok) return { career: null, error: v.error };
+    identityValue = {
+      colors: v.value.colors,
+      philosophy: v.value.philosophy,
+      shows: v.value.shows.map((s, i) => ({ id: `show-${i + 1}`, name: s.name, day: s.day })),
+      logo: v.value.logo ?? null,
+    };
+  }
 
   const now = new Date().toISOString();
   const seed = parsed.value.seed.length > 0 ? parsed.value.seed : randomSeed();
@@ -36,6 +78,10 @@ export async function createCareer(raw: unknown): Promise<CareerResult> {
     gmName: parsed.value.gmName,
     seed,
     inGameDate: "2027-01-01",
+    colors: identityValue.colors,
+    philosophy: identityValue.philosophy,
+    shows: identityValue.shows,
+    logo: identityValue.logo,
     createdAt: now,
     updatedAt: now,
   };
@@ -55,6 +101,30 @@ export async function renameFederation(saveId: string, rawName: unknown): Promis
 
   const now = new Date().toISOString();
   await db.careers.update(saveId, { federationName: parsed.data, updatedAt: now });
+  const career = await db.careers.get(saveId);
+  return career ? { career, error: null } : { career: null, error: "Federazione non trovata" };
+}
+
+/** Aggiorna l'identità della federazione: colori, filosofia, show settimanali e logo. */
+export async function updateIdentity(saveId: string, raw: unknown): Promise<CareerResult> {
+  const existing = await db.careers.get(saveId);
+  if (!existing) return { career: null, error: "Federazione non trovata" };
+  const v = validateIdentity(raw);
+  if (!v.ok) return { career: null, error: v.error };
+
+  const now = new Date().toISOString();
+  await db.careers.update(saveId, {
+    colors: v.value.colors,
+    philosophy: v.value.philosophy,
+    shows: v.value.shows.map((s, i) => ({
+      id: existing.shows?.[i]?.id ?? `show-${i + 1}`,
+      name: s.name,
+      day: s.day,
+    })),
+    logo: v.value.logo ?? null,
+    schemaVersion: SCHEMA_VERSION,
+    updatedAt: now,
+  });
   const career = await db.careers.get(saveId);
   return career ? { career, error: null } : { career: null, error: "Federazione non trovata" };
 }
