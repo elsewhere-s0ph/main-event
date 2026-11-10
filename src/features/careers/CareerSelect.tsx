@@ -253,7 +253,7 @@ export default function CareerSelect() {
 
       <footer className={styles.footer}>
         <p className={styles.muted}>
-          Checkpoint C3 — il gestionale è completo. Prossimo passo: booking e show settimanali.
+          Checkpoint C4 — booking e show in gioco. Prossimo passo: universo persistente.
         </p>
       </footer>
     </div>
