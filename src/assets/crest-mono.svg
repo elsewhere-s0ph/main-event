@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 420" role="img" aria-label="Main Event (mono)">
+  <g fill="none" stroke="currentColor">
+    <rect x="12" y="160" width="122" height="100" rx="20" stroke-width="4"/>
+    <rect x="24" y="172" width="98" height="76" rx="14" stroke-width="3" stroke-dasharray="0 14" stroke-linecap="round"/>
+    <rect x="506" y="160" width="122" height="100" rx="20" stroke-width="4"/>
+    <rect x="518" y="172" width="98" height="76" rx="14" stroke-width="3" stroke-dasharray="0 14" stroke-linecap="round"/>
+    <ellipse cx="320" cy="210" rx="248" ry="174" stroke-width="6"/>
+    <ellipse cx="320" cy="210" rx="206" ry="134" stroke-width="2.5"/>
+  </g>
+  <path id="meArcTopM" d="M 158 240 A 166 112 0 0 1 482 240" fill="none"/>
+  <text font-family="Georgia, 'Times New Roman', serif" font-weight="700" font-size="42" letter-spacing="10" fill="currentColor">
+    <textPath href="#meArcTopM" startOffset="50%" text-anchor="middle">MAIN EVENT</textPath>
+  </text>
+  <g transform="translate(178 182) scale(1.15)"><path d="M16 4l3.2 7.1 7.8.9-5.7 5.3 1.5 7.7-6.8-3.7-6.8 3.7 1.5-7.7-5.7-5.3 7.8-.9z" fill="currentColor"/></g>
+  <g transform="translate(426 182) scale(1.15)"><path d="M16 4l3.2 7.1 7.8.9-5.7 5.3 1.5 7.7-6.8-3.7-6.8 3.7 1.5-7.7-5.7-5.3 7.8-.9z" fill="currentColor"/></g>
+  <text x="320" y="292" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-weight="700" font-size="150" fill="currentColor">ME</text>
+  <path id="meArcBotM" d="M 186 262 A 148 92 0 0 0 454 262" fill="none"/>
+  <text font-family="system-ui, 'Segoe UI', sans-serif" font-weight="600" font-size="19" letter-spacing="7" fill="currentColor">
+    <textPath href="#meArcBotM" startOffset="50%" text-anchor="middle">WRESTLING MANAGER</textPath>
+  </text>
+</svg>
