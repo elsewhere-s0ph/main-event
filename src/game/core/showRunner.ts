@@ -10,7 +10,6 @@ import type {
   CardItem,
   MatchOutcome,
   SegmentKind,
-  SegmentOutcome,
   ShowEntryOutcome,
   ShowResult,
 } from "../types/booking";
