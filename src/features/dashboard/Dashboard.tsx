@@ -3,6 +3,7 @@ import { Link, useParams } from "react-router-dom";
 import { useCareerStore } from "../../stores/careerStore";
 import { contractStatus } from "../../game/core/contracts";
 import { DAY_LABELS, DEFAULT_COLORS, PHILOSOPHY_LABELS } from "../../game/core/federation";
+import { nextShowDate } from "../../game/core/booking";
 import Crest from "../federation/Crest";
 import styles from "./Dashboard.module.css";
 
@@ -42,6 +43,7 @@ export default function Dashboard() {
 
   const payroll = roster.reduce((sum, w) => sum + w.contract.weeklyPay, 0);
   const shows = current.shows ?? [];
+  const upcoming = nextShowDate(shows, current.inGameDate);
 
   return (
     <div className={styles.page}>
@@ -152,6 +154,24 @@ export default function Dashboard() {
             Chi regna adesso e chi ha regnato prima: tocca per gestire i titoli e scrivere la
             storia della federazione.
           </p>
+        </section>
+
+        <section className={styles.card}>
+          <h2>Booking &amp; show</h2>
+          {upcoming ? (
+            <p>
+              <strong>{upcoming.name}</strong> — prossima puntata: {upcoming.date}
+            </p>
+          ) : (
+            <p>Nessuno show in calendario.</p>
+          )}
+          <p className={styles.muted}>
+            Componi la card: match, segmenti e rivalità. Quando registri lo show, il tempo avanza
+            e i titoli si difendono.
+          </p>
+          <Link to={`/career/${saveId}/booking`} className="btn btn-primary">
+            Vai al booking
+          </Link>
         </section>
 
         <section className={styles.card}>
