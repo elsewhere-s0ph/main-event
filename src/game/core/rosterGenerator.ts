@@ -234,7 +234,8 @@ function statsFor(bodyType: BodyType, rng: () => number): WrestlerStats {
   };
 }
 
-function weeklyPayFor(stats: WrestlerStats): number {
+/** Paga settimanale in base agli attributi (usata alla firma e al rinnovo). */
+export function weeklyPayFor(stats: WrestlerStats): number {
   const avg = (stats.power + stats.agility + stats.stamina + stats.charisma) / 4;
   return 150 + Math.round(avg * 40);
 }
