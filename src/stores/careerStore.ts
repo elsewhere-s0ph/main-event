@@ -1,10 +1,13 @@
 import { create } from "zustand";
 import * as repo from "../data/repositories/careerRepository";
 import * as rosterRepo from "../data/repositories/rosterRepository";
+import * as titleRepo from "../data/repositories/titleRepository";
+import type { TitleResult } from "../data/repositories/titleRepository";
 import { validateWrestlerInput } from "../game/core/wrestlerSchema";
 import { renewContract, RENEWAL_WEEKS } from "../game/core/contracts";
 import type { Career } from "../game/types/career";
 import type { Wrestler } from "../game/types/roster";
+import type { Championship } from "../game/types/titles";
 
 // Stato globale dell'interfaccia (Zustand). Non contiene lo stato della
 // simulazione: quella vive nei motori di gioco (Documento Master §2).
@@ -23,6 +26,7 @@ interface CareerStore {
   careers: Career[];
   current: Career | null;
   roster: Wrestler[];
+  titles: Championship[];
   selected: Wrestler | null;
   loading: boolean;
   refresh: () => Promise<void>;
@@ -32,6 +36,10 @@ interface CareerStore {
   saveWrestler: (id: string, raw: unknown) => Promise<WrestlerResult>;
   renewWrestler: (id: string, weeks: number) => Promise<WrestlerResult>;
   releaseWrestler: (id: string) => Promise<void>;
+  addTitle: (raw: { name: string; category: string }) => Promise<TitleResult>;
+  renameTitle: (id: string, rawName: unknown) => Promise<TitleResult>;
+  crownWrestler: (titleId: string, wrestlerId: string) => Promise<TitleResult>;
+  vacateTitle: (titleId: string) => Promise<TitleResult>;
   rename: (saveId: string, name: string) => Promise<CareerResult>;
   remove: (saveId: string) => Promise<void>;
 }
@@ -40,6 +48,7 @@ export const useCareerStore = create<CareerStore>((set, get) => ({
   careers: [],
   current: null,
   roster: [],
+  titles: [],
   selected: null,
   loading: false,
 
@@ -54,7 +63,8 @@ export const useCareerStore = create<CareerStore>((set, get) => ({
     if (!res.career) return res;
     set({ current: res.career });
     const roster = await rosterRepo.ensureRoster(res.career);
-    set({ roster, selected: null });
+    const titles = await titleRepo.ensureTitles(res.career);
+    set({ roster, titles, selected: null });
     await get().refresh();
     return { career: res.career, error: null };
   },
@@ -66,11 +76,12 @@ export const useCareerStore = create<CareerStore>((set, get) => ({
     }
     set({ current: career ?? null });
     if (!career) {
-      set({ roster: [] });
+      set({ roster: [], titles: [] });
       return null;
     }
     const roster = await rosterRepo.ensureRoster(career);
-    set({ roster });
+    const titles = await titleRepo.ensureTitles(career);
+    set({ roster, titles });
     return career;
   },
 
@@ -118,11 +129,60 @@ export const useCareerStore = create<CareerStore>((set, get) => ({
   releaseWrestler: async (id) => {
     const existing = get().roster.find((w) => w.id === id);
     if (!existing) return;
+    // Se era campione, i titoli che reggeva tornano vacanti: il regno resta nell'albo d'oro.
+    const career = get().current;
+    const today = career?.inGameDate ?? "2027-01-01";
+    const heldTitles = get().titles.filter((t) => t.currentChampionId === id);
+    const updatedTitles: Championship[] = [];
+    for (const t of heldTitles) {
+      const res = await titleRepo.vacateTitle(t.id, today);
+      if (res.title) updatedTitles.push(res.title);
+    }
     await rosterRepo.removeWrestler(id);
     set({
       roster: get().roster.filter((w) => w.id !== id),
       selected: get().selected?.id === id ? null : get().selected,
+      titles:
+        updatedTitles.length > 0
+          ? get().titles.map((t) => updatedTitles.find((u) => u.id === t.id) ?? t)
+          : get().titles,
     });
+  },
+
+  addTitle: async (raw) => {
+    const career = get().current;
+    if (!career) return { title: null, error: "Federazione non trovata" };
+    const res = await titleRepo.createTitle(career.saveId, raw);
+    if (res.title) set({ titles: [...get().titles, res.title] });
+    return res;
+  },
+
+  renameTitle: async (id, rawName) => {
+    const res = await titleRepo.renameTitle(id, rawName);
+    if (res.title) {
+      set({ titles: get().titles.map((t) => (t.id === id ? res.title! : t)) });
+    }
+    return res;
+  },
+
+  crownWrestler: async (titleId, wrestlerId) => {
+    const career = get().current;
+    if (!career) return { title: null, error: "Federazione non trovata" };
+    const res = await titleRepo.crownChampion(titleId, wrestlerId, career.inGameDate);
+    if (res.title) {
+      set({ titles: get().titles.map((t) => (t.id === titleId ? res.title! : t)) });
+    }
+    return res;
+  },
+
+  vacateTitle: async (titleId) => {
+    const career = get().current;
+    if (!career) return { title: null, error: "Federazione non trovata" };
+    const res = await titleRepo.vacateTitle(titleId, career.inGameDate);
+    if (res.title) {
+      set({ titles: get().titles.map((t) => (t.id === titleId ? res.title! : t)) });
+    }
+    return res;
   },
 
   rename: async (saveId, name) => {
@@ -136,7 +196,9 @@ export const useCareerStore = create<CareerStore>((set, get) => ({
 
   remove: async (saveId) => {
     await repo.deleteCareer(saveId);
-    if (get().current?.saveId === saveId) set({ current: null, roster: [], selected: null });
+    if (get().current?.saveId === saveId) {
+      set({ current: null, roster: [], titles: [], selected: null });
+    }
     await get().refresh();
   },
 }));
