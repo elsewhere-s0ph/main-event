@@ -175,6 +175,20 @@ export default function Dashboard() {
         </section>
 
         <section className={styles.card}>
+          <h2>Mondo &amp; ascolti</h2>
+          <p>
+            Cassa: <strong>{(current.finance?.balance ?? 0).toLocaleString("it-IT")}</strong>
+          </p>
+          <p className={styles.muted}>
+            Le rivali si sfidano negli ascolti: ogni show registrato è una settimana di battaglia
+            per il pubblico. Nel registro resta ogni euro.
+          </p>
+          <Link to={`/career/${saveId}/world`} className="btn btn-primary">
+            Vai al mondo &amp; ascolti
+          </Link>
+        </section>
+
+        <section className={styles.card}>
           <h2>Il motore (demo)</h2>
           <p className={styles.muted}>
             Il prototipo del motore è pronto: due wrestler sul ring isometrico, un incontro
@@ -188,3 +202,4 @@ export default function Dashboard() {
     </div>
   );
 }
+
