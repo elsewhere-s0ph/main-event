@@ -1,12 +1,13 @@
 import { useEffect, useState, type FormEvent } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { useCareerStore } from "../../stores/careerStore";
+import { contractStatus, RENEWAL_WEEKS, weeksRemaining, type ContractStatus } from "../../game/core/contracts";
 import type { Wrestler } from "../../game/types/roster";
 import styles from "./WrestlerPage.module.css";
 
 // Scheda wrestler (C3): identità, attributi, mosse, look e contratto.
-// Ogni modifica passa dalla validazione Zod (saveWrestler) prima di
-// toccare il database: la UI non salva mai dati non validati.
+// Ogni modifica passa dalla validazione (saveWrestler / renewWrestler)
+// prima di toccare il database: la UI non salva mai dati non validati.
 
 type StatKey = "power" | "agility" | "stamina" | "charisma";
 
@@ -18,6 +19,12 @@ const STAT_LABELS: Record<StatKey, string> = {
 };
 
 const STAT_ORDER: StatKey[] = ["power", "agility", "stamina", "charisma"];
+
+const STATUS_LABEL: Record<ContractStatus, string> = {
+  attivo: "attivo",
+  "in scadenza": "in scadenza",
+  scaduto: "scaduto",
+};
 
 interface FormState {
   name: string;
@@ -69,15 +76,20 @@ function withStat(
 
 export default function WrestlerPage() {
   const { saveId, wrestlerId } = useParams();
+  const navigate = useNavigate();
   const current = useCareerStore((s) => s.current);
   const selected = useCareerStore((s) => s.selected);
   const open = useCareerStore((s) => s.open);
   const selectWrestler = useCareerStore((s) => s.selectWrestler);
   const saveWrestler = useCareerStore((s) => s.saveWrestler);
+  const renewWrestler = useCareerStore((s) => s.renewWrestler);
+  const releaseWrestler = useCareerStore((s) => s.releaseWrestler);
 
   const [form, setForm] = useState<FormState | null>(null);
   const [feedback, setFeedback] = useState<{ ok: boolean; text: string } | null>(null);
   const [saving, setSaving] = useState(false);
+  const [renewing, setRenewing] = useState(false);
+  const [releasing, setReleasing] = useState(false);
 
   useEffect(() => {
     if (!saveId) return;
@@ -108,6 +120,33 @@ export default function WrestlerPage() {
     }
   }
 
+  async function handleRenew(weeks: number) {
+    if (!wrestlerId) return;
+    setRenewing(true);
+    const res = await renewWrestler(wrestlerId, weeks);
+    setRenewing(false);
+    if (res.wrestler) {
+      setFeedback({
+        ok: true,
+        text: `Contratto rinnovato fino al ${res.wrestler.contract.expiresOn} (${res.wrestler.contract.weeklyPay} a settimana).`,
+      });
+    } else {
+      setFeedback({ ok: false, text: res.error ?? "Errore" });
+    }
+  }
+
+  async function handleRelease() {
+    if (!wrestlerId || !form || !saveId) return;
+    const conferma = window.confirm(
+      `Lasciare andare ${form.name}? Esce dal roster in modo definitivo.`
+    );
+    if (!conferma) return;
+    setReleasing(true);
+    await releaseWrestler(wrestlerId);
+    setReleasing(false);
+    navigate(`/career/${saveId}`);
+  }
+
   if (!current || !selected || !form) {
     return (
       <div className={styles.page}>
@@ -118,6 +157,17 @@ export default function WrestlerPage() {
       </div>
     );
   }
+
+  const status = contractStatus(selected.contract, current.inGameDate);
+  const weeks = weeksRemaining(selected.contract, current.inGameDate);
+  const badgeClass =
+    status === "scaduto" ? styles.badgeDanger : status === "in scadenza" ? styles.badgeWarn : styles.badgeOk;
+  const scadenzaText =
+    status === "scaduto"
+      ? "Contratto scaduto: rinnova o lascia andare l'atleta."
+      : weeks <= 1
+        ? `Scade entro pochi giorni (il ${selected.contract.expiresOn}).`
+        : `Scade tra ${weeks} settimane (il ${selected.contract.expiresOn}).`;
 
   return (
     <div className={styles.page}>
@@ -306,6 +356,10 @@ export default function WrestlerPage() {
 
           <section className={styles.card}>
             <h2>Contratto</h2>
+            <div className={styles.statusRow}>
+              <span className={`${styles.badge} ${badgeClass}`}>{STATUS_LABEL[status]}</span>
+              <span className={styles.muted}>{scadenzaText}</span>
+            </div>
             <dl className={styles.dl}>
               <dt>Paga settimanale</dt>
               <dd>{selected.contract.weeklyPay} a settimana</dd>
@@ -314,8 +368,33 @@ export default function WrestlerPage() {
               <dt>Scade il</dt>
               <dd>{selected.contract.expiresOn}</dd>
             </dl>
+            <div className={styles.renewRow}>
+              <span className={styles.labelText}>Rinnova per</span>
+              {RENEWAL_WEEKS.map((wks) => (
+                <button
+                  key={wks}
+                  type="button"
+                  className={styles.renewBtn}
+                  onClick={() => handleRenew(wks)}
+                  disabled={renewing}
+                >
+                  {wks} sett.
+                </button>
+              ))}
+            </div>
+            <div className={styles.releaseRow}>
+              <button
+                type="button"
+                className="btn btn-danger"
+                onClick={handleRelease}
+                disabled={releasing}
+              >
+                {releasing ? "Trasferimento…" : "Lascia andare"}
+              </button>
+            </div>
             <p className={styles.muted}>
-              Rinnovi, scadenze e mercato libero arrivano nel prossimo passo.
+              Al rinnovo la paga si ricalcola dagli attributi attuali: migliorare un atleta
+              costa.
             </p>
           </section>
 
