@@ -30,7 +30,12 @@ interface CareerStore {
   selected: Wrestler | null;
   loading: boolean;
   refresh: () => Promise<void>;
-  create: (input: { federationName: string; gmName: string; seed: string }) => Promise<CareerResult>;
+  create: (input: {
+    federationName: string;
+    gmName: string;
+    seed: string;
+    identity?: unknown;
+  }) => Promise<CareerResult>;
   open: (saveId: string) => Promise<Career | null>;
   selectWrestler: (id: string | null) => void;
   saveWrestler: (id: string, raw: unknown) => Promise<WrestlerResult>;
@@ -40,6 +45,7 @@ interface CareerStore {
   renameTitle: (id: string, rawName: unknown) => Promise<TitleResult>;
   crownWrestler: (titleId: string, wrestlerId: string) => Promise<TitleResult>;
   vacateTitle: (titleId: string) => Promise<TitleResult>;
+  updateIdentity: (raw: unknown) => Promise<CareerResult>;
   rename: (saveId: string, name: string) => Promise<CareerResult>;
   remove: (saveId: string) => Promise<void>;
 }
@@ -59,7 +65,7 @@ export const useCareerStore = create<CareerStore>((set, get) => ({
   },
 
   create: async (input) => {
-    const res = await repo.createCareer(input);
+    const res = await repo.createCareer(input, input.identity);
     if (!res.career) return res;
     set({ current: res.career });
     const roster = await rosterRepo.ensureRoster(res.career);
@@ -181,6 +187,18 @@ export const useCareerStore = create<CareerStore>((set, get) => ({
     const res = await titleRepo.vacateTitle(titleId, career.inGameDate);
     if (res.title) {
       set({ titles: get().titles.map((t) => (t.id === titleId ? res.title! : t)) });
+    }
+    return res;
+  },
+
+  updateIdentity: async (raw) => {
+    const career = get().current;
+    if (!career) return { career: null, error: "Federazione non trovata" };
+    const res = await repo.updateIdentity(career.saveId, raw);
+    const updated = res.career;
+    if (updated) {
+      set({ current: updated });
+      set({ careers: get().careers.map((c) => (c.saveId === updated.saveId ? updated : c)) });
     }
     return res;
   },
