@@ -7,7 +7,9 @@ on:
 
 jobs:
   verify:
-    runs-on: ubuntu-latest
+    # ubuntu-latest sta migrando a Ubuntu 26 (notice del runner): immagine bloccata
+    # su 24.04 finché la CI non è di nuovo stabile su latest.
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
