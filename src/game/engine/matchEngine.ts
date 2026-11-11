@@ -19,6 +19,8 @@ interface MoveDef {
   /** Statistica che pesa di più nella scelta della mossa. */
   favors: "power" | "agility";
   durMs: number;
+  /** Istante dell'impatto dentro l'evento, per la sincronia con la cronaca. */
+  impactMs?: number;
 }
 
 const MOVES: readonly MoveDef[] = [
@@ -36,10 +38,14 @@ const MOVES: readonly MoveDef[] = [
   { id: "suplex", name: "Suplex verticale", kind: "grapple", base: 12, favors: "power", durMs: 1800 },
   { id: "brainbuster", name: "Brainbuster", kind: "grapple", base: 12, favors: "power", durMs: 1700 },
   { id: "chokeslam", name: "Chokeslam", kind: "grapple", base: 13, favors: "power", durMs: 1700 },
-  { id: "lariat", name: "Lariat", kind: "strike", base: 9, favors: "power", durMs: 1100 },
-  { id: "bigboot", name: "Big boot", kind: "strike", base: 8, favors: "power", durMs: 1000 },
-  { id: "sitoutpowerbomb", name: "Sit-Out Powerbomb", kind: "grapple", base: 12, favors: "power", durMs: 1700 },
+  { id: "lariat", name: "Lariat", kind: "strike", base: 9, favors: "power", durMs: 1100, impactMs: 400 },
+  { id: "bigboot", name: "Big boot", kind: "strike", base: 8, favors: "power", durMs: 1000, impactMs: 350 },
+  { id: "sitoutpowerbomb", name: "Sit-Out Powerbomb", kind: "grapple", base: 12, favors: "power", durMs: 1700, impactMs: 1150 },
 ];
+
+// Il finisher è testo libero: quando coincide con una mossa del catalogo
+// (es. "Sit-Out Powerbomb") ricaviamo l'id per le coreografie dedicate.
+const FINISHER_MOVE_ID = new Map(MOVES.map((m) => [m.name.toLowerCase(), m.id]));
 
 const DUR = {
   entrance: 1500,
@@ -81,7 +87,9 @@ export function simulateMatch(
     damage: number,
     durMs: number,
     text: string,
-    gap: number = DUR.gap
+    gap: number = DUR.gap,
+    moveId?: string,
+    impactMs?: number
   ) => {
     events.push({
       id: nextId++,
@@ -92,6 +100,8 @@ export function simulateMatch(
       moveName,
       damage,
       text,
+      ...(moveId ? { moveId } : {}),
+      ...(impactMs ? { impactMs } : {}),
       energyAfter: [energy[0], energy[1]],
     });
     t += durMs + gap;
@@ -154,7 +164,9 @@ export function simulateMatch(
           `${att.name} solleva ${def.name} e lo scaraventa: ${att.finisher}!`,
           `Non si scappa: ${att.finisher} di ${att.name} su ${def.name}!`,
         ]),
-        0
+        0,
+        FINISHER_MOVE_ID.get(att.finisher.toLowerCase()),
+        1200
       );
       push("knockdown", target, "", 0, DUR.knockdown, `${def.name} resta giù: il mat trema.`, 0);
       // Vittoria credibile: solo se il finisher ha davvero piegato l'avversario
@@ -197,7 +209,10 @@ export function simulateMatch(
         `${att.name} centra ${def.name} con un ${move.name} secco.`,
         `${def.name} incassa alla grande: ${move.name} di ${att.name}.`,
         `Che impatto: ${move.name}! ${def.name} barcolla.`,
-      ])
+      ]),
+      DUR.gap,
+      move.id,
+      move.impactMs ?? (move.kind === "strike" ? 350 : 1050)
     );
 
     if (dmg >= 10 || energy[target] < 25) {
