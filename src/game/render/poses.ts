@@ -34,6 +34,8 @@ export type PoseId =
   | "bridge"
   | "getupLean"
   | "dizzy"
+  | "bigBoot"
+  | "sitOut"
   | "winPose";
 
 export const POSES: Record<PoseId, PoseFrame> = {
@@ -52,6 +54,8 @@ export const POSES: Record<PoseId, PoseFrame> = {
   bridge: { hip: 22, lean: -0.8, headTilt: -0.4, armFar: [-0.2, 0.1], armNear: [-0.15, 0.1], legFar: [0.5, -0.6], legNear: [0.4, -0.5] },
   getupLean: { hip: 26, lean: 0.9, headTilt: 0.2, armFar: [0.8, 0.3], armNear: [0.6, 0.4], legFar: [0.5, -0.6], legNear: [-0.2, 0.4] },
   dizzy: { hip: 43, lean: 0.2, headTilt: 0.45, armFar: [0.15, 0.6], armNear: [-0.1, 0.55], legFar: [0.1, -0.1], legNear: [-0.15, 0.15] },
+  bigBoot: { hip: 44, lean: -0.25, headTilt: 0, armFar: [-0.6, 0.4], armNear: [0.5, 0.6], legFar: [-0.15, 0.1], legNear: [1.45, 0.15] },
+  sitOut: { hip: 12, lean: 0.2, headTilt: 0.15, armFar: [-0.8, 0.25], armNear: [-0.7, 0.3], legFar: [1.3, 0.2], legNear: [1.1, 0.35] },
   winPose: { hip: 47, lean: -0.1, headTilt: -0.15, armFar: [0.9, 0.2], armNear: [2.65, 0.15], legFar: [0.1, -0.05], legNear: [-0.15, 0.12] },
 };
 
@@ -88,12 +92,12 @@ export const CHOREO: Record<EventKind, { actor: Track; target: Track }> = {
     target: { kf: [{ at: 0, pose: "lockupPose", dx: -8 }, { at: 900, pose: "lockupPose", dx: -8 }] },
   },
   strike: {
-    actor: { kf: [{ at: 0, pose: "lunge", dx: -6 }, { at: 350, pose: "clotheslineArm", dx: 30 }, { at: 700, pose: "lunge", dx: 10 }, { at: 1000, pose: "idle" }] },
-    target: { kf: [{ at: 0, pose: "idle", hold: true }, { at: 300, pose: "idle", hold: true }, { at: 400, pose: "hitStun", dx: -20 }, { at: 750, pose: "dizzy", dx: -12 }, { at: 1000, pose: "idle" }] },
+    actor: { kf: [{ at: 0, pose: "lunge", dx: -6 }, { at: 350, pose: "clotheslineArm", dx: 30 }, { at: 700, pose: "lunge", dx: 10 }, { at: 1200, pose: "idle" }] },
+    target: { kf: [{ at: 0, pose: "idle", hold: true }, { at: 300, pose: "idle", hold: true }, { at: 400, pose: "hitStun", dx: -20 }, { at: 750, pose: "dizzy", dx: -12 }, { at: 1200, pose: "idle" }] },
   },
   grapple: {
-    actor: { kf: [{ at: 0, pose: "lockupPose", dx: 10 }, { at: 450, pose: "lift", dx: 4 }, { at: 750, pose: "lift", dx: 2 }, { at: 1050, pose: "lunge", dx: -6 }, { at: 1500, pose: "idle" }] },
-    target: { kf: [{ at: 0, pose: "lockupPose", dx: -10 }, { at: 450, pose: "getupLean", dx: -120, dy: -18 }, { at: 750, pose: "suspended", dx: -132, dy: -64 }, { at: 1050, pose: "downFlat", dx: -132, dy: -2 }, { at: 1500, pose: "downFlat", dx: -132 }] },
+    actor: { kf: [{ at: 0, pose: "lockupPose", dx: 10 }, { at: 450, pose: "lift", dx: 4 }, { at: 750, pose: "lift", dx: 2 }, { at: 1050, pose: "lunge", dx: -6 }, { at: 1800, pose: "idle" }] },
+    target: { kf: [{ at: 0, pose: "lockupPose", dx: -10 }, { at: 450, pose: "getupLean", dx: -120, dy: -18 }, { at: 750, pose: "suspended", dx: -132, dy: -64 }, { at: 1050, pose: "downFlat", dx: -132, dy: -2 }, { at: 1800, pose: "downFlat", dx: -132 }] },
   },
   knockdown: {
     actor: { kf: [] },
@@ -118,6 +122,22 @@ export const CHOREO: Record<EventKind, { actor: Track; target: Track }> = {
   win: {
     actor: { kf: [{ at: 0, pose: "winPose" }, { at: 800, pose: "armUp" }, { at: 2000, pose: "armUp" }] },
     target: { kf: [{ at: 0, pose: "downFlat", hold: true }, { at: 2000, pose: "downFlat", hold: true }] },
+  },
+};
+
+/** Coreografie per mossa specifica: sovrascrivono quelle per tipo di evento. */
+export const MOVE_CHOREO: Record<string, { actor: Track; target: Track }> = {
+  lariat: {
+    actor: { kf: [{ at: 0, pose: "lunge", dx: -24 }, { at: 250, pose: "lunge", dx: 26 }, { at: 400, pose: "clotheslineArm", dx: 58 }, { at: 750, pose: "lunge", dx: 18 }, { at: 1100, pose: "idle" }] },
+    target: { kf: [{ at: 0, pose: "idle", hold: true }, { at: 350, pose: "idle", hold: true }, { at: 400, pose: "hitStun", dx: -30 }, { at: 620, pose: "downFlat", dx: -70 }, { at: 1100, pose: "downFlat", dx: -70 }] },
+  },
+  bigboot: {
+    actor: { kf: [{ at: 0, pose: "lunge", dx: -14 }, { at: 250, pose: "lunge", dx: 8 }, { at: 350, pose: "bigBoot", dx: 34 }, { at: 700, pose: "lunge", dx: 6 }, { at: 1000, pose: "idle" }] },
+    target: { kf: [{ at: 0, pose: "idle", hold: true }, { at: 300, pose: "idle", hold: true }, { at: 350, pose: "hitStun", dx: -26 }, { at: 560, pose: "downFlat", dx: -62 }, { at: 1000, pose: "downFlat", dx: -62 }] },
+  },
+  sitoutpowerbomb: {
+    actor: { kf: [{ at: 0, pose: "lockupPose", dx: 12 }, { at: 450, pose: "lift", dx: 6 }, { at: 800, pose: "lift", dx: 2 }, { at: 1150, pose: "sitOut", dx: -26 }, { at: 1500, pose: "sitOut", dx: -30 }, { at: 1700, pose: "idle" }] },
+    target: { kf: [{ at: 0, pose: "lockupPose", dx: -12 }, { at: 450, pose: "suspended", dx: -40, dy: -58 }, { at: 800, pose: "suspended", dx: -36, dy: -64 }, { at: 1150, pose: "downFlat", dx: -48, dy: -2 }, { at: 1700, pose: "downFlat", dx: -48 }] },
   },
 };
 
