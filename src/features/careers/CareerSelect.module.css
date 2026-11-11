@@ -1,4 +1,4 @@
-.page {
+successfully downloaded text file (SHA: eecbb79050378b80fb07838d92d2f728bbe98e2b).page {
   max-width: 720px;
   margin: 0 auto;
   padding: 24px 16px 48px;
@@ -135,6 +135,16 @@
 
 .cardActions .btn {
   flex: 1;
+}
+
+.back {
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+
+.back:hover {
+  color: var(--gold);
 }
 
 .muted {
