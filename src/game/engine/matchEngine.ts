@@ -36,6 +36,9 @@ const MOVES: readonly MoveDef[] = [
   { id: "suplex", name: "Suplex verticale", kind: "grapple", base: 12, favors: "power", durMs: 1800 },
   { id: "brainbuster", name: "Brainbuster", kind: "grapple", base: 12, favors: "power", durMs: 1700 },
   { id: "chokeslam", name: "Chokeslam", kind: "grapple", base: 13, favors: "power", durMs: 1700 },
+  { id: "lariat", name: "Lariat", kind: "strike", base: 9, favors: "power", durMs: 1100 },
+  { id: "bigboot", name: "Big boot", kind: "strike", base: 8, favors: "power", durMs: 1000 },
+  { id: "sitoutpowerbomb", name: "Sit-Out Powerbomb", kind: "grapple", base: 12, favors: "power", durMs: 1700 },
 ];
 
 const DUR = {
