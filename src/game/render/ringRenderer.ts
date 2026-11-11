@@ -142,7 +142,6 @@ function drawHDLimb(
   const len = Math.max(1, Math.hypot(dx, dy));
   const steps = Math.max(2, Math.ceil(len * 1.4));
   const nx = -dy / len;
-  const ny = dx / len;
 
   // Pass 1: outline nero marcato
   for (let i = 0; i <= steps; i++) {
