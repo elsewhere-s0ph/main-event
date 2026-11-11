@@ -1,7 +1,11 @@
+text
+resource
+repo://elsewhere-s0ph/main-event/sha/c049858bf91cd4da69bd60ffb87981b733c62824/contents/package.json
+text/plain; charset=utf-8
 {
   "name": "main-event",
   "private": true,
-  "version": "0.6.0",
+  "version": "0.7.0",
   "type": "module",
   "engines": {
     "node": ">=20"
