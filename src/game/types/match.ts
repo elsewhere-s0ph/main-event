@@ -55,6 +55,10 @@ export interface MatchEvent {
   damage: number;
   /** Righe di cronaca in italiano. */
   text: string;
+  /** Id della mossa eseguita, se presente (per le coreografie dedicate). */
+  moveId?: string;
+  /** Istante dell'impatto dentro l'evento, in ms (default 0: testo a inizio evento). */
+  impactMs?: number;
   /** Energia di entrambi al termine dell'evento (0–100). */
   energyAfter: readonly [number, number];
 }
