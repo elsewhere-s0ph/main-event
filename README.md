@@ -9,7 +9,7 @@ text/plain; charset=utf-8
 
 # MAIN EVENT — Documento Master
 
-**Versione:** 2.4 — 8 novembre 2026
+**Versione:** 2.5 — 11 novembre 2026
 **Nome del prodotto:** **Main Event** (in fase di progettazione: "Wrestling Empire Manager")
 **Origine:** consolidamento di GDD 1.0 + TDD 1.0 + ADD 1.0, con le modifiche approvate in data 7 novembre 2026
 **Repo:** `elsewhere-s0ph/main-event`
