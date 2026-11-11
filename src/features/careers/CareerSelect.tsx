@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from "react";
+successfully downloaded text file (SHA: 3b8323d85ff2ea3e475d16fbb7ce2be1fd032ebc)import { useState, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useCareerStore } from "../../stores/careerStore";
 import {
@@ -11,12 +11,6 @@ import {
 } from "../../game/core/federation";
 import type { FederationPhilosophy, WeeklyShow } from "../../game/types/career";
 import styles from "./CareerSelect.module.css";
-
-function formatDate(iso: string): string {
-  return new Intl.DateTimeFormat("it-IT", { dateStyle: "medium", timeStyle: "short" }).format(
-    new Date(iso)
-  );
-}
 
 export default function CareerSelect() {
   const navigate = useNavigate();
