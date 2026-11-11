@@ -392,7 +392,7 @@ function drawWrestlerSprite(ctx: CanvasRenderingContext2D, def: WrestlerDef, fra
     hipX - beltDx * 0.7, hipY - beltDy * 0.7 - 2,
     hipX + beltDx * 0.8, hipY + beltDy * 0.8 - 2,
     1.6, 1.6,
-    { shadow: shade(trim, 0.8), base: trim },
+    { shadow: shade(trim, 0.8), base: trim, light: shade(trim, 1.25) },
     false
   );
   mRect(ctx, hipX, hipY - 3, 3, 6, 3, shade(trim, 1.25), f);
