@@ -1,5 +1,5 @@
-successfully downloaded text file (SHA: 213386ac3070120da61643a4b77b9f0d622a2cb2)/* «Notte di Main Event» — token identici alla landing (main-event-home.pages.dev).
-   Tema chiaro/scuro: default notte, override con [data-theme="light"] (chiave main-event-theme). */
+/* «Notte di Main Event» — token identici alla landing (main-event-home.pages.dev).
+   Unica palette: notte navy + oro cintura + lavanda. Nessun tema alternativo. */
 :root {
   color-scheme: dark;
   --bg: #070a18;
@@ -18,23 +18,6 @@ successfully downloaded text file (SHA: 213386ac3070120da61643a4b77b9f0d622a2cb2
   --radius: 14px;
 }
 
-[data-theme="light"] {
-  color-scheme: light;
-  --bg: #f7f3ec;
-  --bg-2: #ffffff;
-  --surface: #ffffff;
-  --surface-2: #e5ddcf;
-  --text: #171426;
-  --muted: #5b6478;
-  --gold: #b8862c;
-  --gold-2: #8f6a1e;
-  --lav: #6d28d9;
-  --violet: #6d28d9;
-  --teal: #0f766e;
-  --danger: #c2413f;
-  --btn-ink: #ffffff;
-}
-
 * {
   box-sizing: border-box;
 }
@@ -51,7 +34,6 @@ body {
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
   -webkit-font-smoothing: antialiased;
   min-height: 100vh;
-  transition: background 0.3s ease, color 0.3s ease;
 }
 
 #root {
@@ -109,30 +91,6 @@ button {
   background: transparent;
   color: var(--danger);
   border: 1px solid rgba(239, 107, 107, 0.4);
-}
-
-/* Toggle tema ☀️/🌙 — stesso schema della landing, fisso in alto a destra su tutte le pagine */
-.theme-toggle {
-  position: fixed;
-  top: 12px;
-  right: 12px;
-  z-index: 50;
-  width: 40px;
-  height: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--surface);
-  border: 1px solid var(--surface-2);
-  border-radius: 999px;
-  color: var(--text);
-  font-size: 16px;
-  cursor: pointer;
-  transition: border-color 0.15s ease;
-}
-
-.theme-toggle:hover {
-  border-color: var(--gold);
 }
 
 .field {
