@@ -1,12 +1,3 @@
-text
-resource
-repo://elsewhere-s0ph/main-event/sha/c049858bf91cd4da69bd60ffb87981b733c62824/contents/README.md
-text/plain; charset=utf-8
-text
-resource
-repo://elsewhere-s0ph/main-event/sha/6110df76d5ade70d3185a76b3bec06b040385088/contents/README.md
-text/plain; charset=utf-8
-
 # MAIN EVENT — Documento Master
 
 **Versione:** 2.5 — 11 novembre 2026
