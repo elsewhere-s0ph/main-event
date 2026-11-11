@@ -17,7 +17,13 @@ jobs:
           node-version: 20
       # Nota: nessun package-lock.json nella repo (sviluppo AI-assistito),
       # quindi npm install invece di npm ci.
-      - run: npm install
+      - name: Run npm install
+        run: |
+          set -o pipefail
+          npm install 2>&1 | tee /tmp/install.log
+      - name: Diagnostica install (errori in annotazioni)
+        if: failure()
+        run: tail -40 /tmp/install.log | while IFS= read -r l; do echo "::error::$l"; done
       - run: npm run lint
       - run: npm run typecheck
       - run: npm run test
