@@ -214,7 +214,7 @@ export default function MatchScreen() {
       </div>
 
       <section className={styles.feedCard} aria-label="Cronaca">
-        <h2>Cronaca</h2>
+        <h2>Cronaca · build 2026-11-11·2</h2>
         <ul className={styles.feed}>
           {ui.feed.map((f, i) => (
             <li key={f.id} className={i === ui.feed.length - 1 ? styles.latest : undefined}>
