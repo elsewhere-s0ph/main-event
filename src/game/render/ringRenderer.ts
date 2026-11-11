@@ -59,8 +59,7 @@ export function createScene(): SceneState {
   return {
     pos: [
       { x: MAT_CX - SLOT_DX, y: 0 },
-      { x: MAT_CX + 
-SLOT_DX, y: 0 },
+      { x: MAT_CX + SLOT_DX, y: 0 },
     ],
     resting: [null, null],
   };
@@ -128,8 +127,7 @@ function pCircle(ctx: CanvasRenderingContext2D, cx: number, cy: number, r: numbe
 // ------------------------------------------------------------------
 
 function drawHDLimb(
-  ctx: Canva
-sRenderingContext2D,
+  ctx: CanvasRenderingContext2D,
   x0: number,
   y0: number,
   x1: number,
@@ -189,8 +187,7 @@ sRenderingContext2D,
 
 // Stivale da ring nero con lacci; con la gamba in spinta orizzontale
 // (calcio) la suola diventa la superficie d'impatto.
-function drawHDBoot(ctx: CanvasRenderingContext2D, fx: number, f
-y: number, angle: number, f: number): void {
+function drawHDBoot(ctx: CanvasRenderingContext2D, fx: number, fy: number, angle: number, f: number): void {
   const x = Math.round(fx);
   const y = Math.round(fy);
   if (angle > 1.0) {
@@ -247,8 +244,7 @@ function drawHDTorso(
   for (let row = 0; row < 3; row++) {
     const t = 0.22 + row * 0.16;
     const abX = hipX + ux * (len * t) + fx * 3;
-    cons
-t abY = hipY + uy * (len * t) + fy * 3;
+    const abY = hipY + uy * (len * t) + fy * 3;
     pRect(ctx, abX - 2, abY - 1, 5, 3, skin.shadow2);
     mRect(ctx, abX, abY - 1, -1, 1, 2, skin.light, f);
     mRect(ctx, abX, abY - 1, 2, 4, 2, skin.base, f);
@@ -310,8 +306,7 @@ function drawHDHead(
 // Sprite memoizzato: un wrestler HD disegnato una volta per posa quantizzata
 // ------------------------------------------------------------------
 
-const spriteCache =
- new Map<string, HTMLCanvasElement>();
+const spriteCache = new Map<string, HTMLCanvasElement>();
 
 function quantize(v: number): number {
   return Math.round(v * 20) / 20;
@@ -359,8 +354,7 @@ function drawWrestlerSprite(ctx: CanvasRenderingContext2D, def: WrestlerDef, fra
   ];
 
   const chestX = hipX + Math.sin(frame.lean) * BODY.spine * s * f;
-  const chestY =
- hipY - Math.cos(frame.lean) * BODY.spine * s;
+  const chestY = hipY - Math.cos(frame.lean) * BODY.spine * s;
   const headA = frame.lean + frame.headTilt;
   const headX = chestX + Math.sin(headA) * 11 * f;
   const headY = chestY - Math.cos(headA) * 11 * s;
@@ -405,8 +399,7 @@ function drawWrestlerSprite(ctx: CanvasRenderingContext2D, def: WrestlerDef, fra
 
   // Gamba vicina
   const rHipX = hipX + 1 * f;
-  const [rKx, rKy] = jp(rHipX, hipY + 2, frame.legNear[0], BODY.thi
-gh);
+  const [rKx, rKy] = jp(rHipX, hipY + 2, frame.legNear[0], BODY.thigh);
   const [rFx, rFy] = jp(rKx, rKy, frame.legNear[0] + frame.legNear[1], BODY.shin);
   drawHDLimb(ctx, rHipX, hipY + 2, rKx, rKy, 6.2, 5, skinFront, false);
   drawHDLimb(ctx, rKx, rKy, rFx, rFy, 4.5, 3.2, skinFront, false);
@@ -454,8 +447,7 @@ function drawWrestler(
   const bob = Math.sin(Math.round(wallMs / 60) * 60 / 420) * 1.1;
   const ground = GROUND_Y - lift + bob;
   const spr = wrestlerSprite(def, frame, facing);
-  ctx.drawImage(spr, Math.round(x - SPR_ANCHOR_X), Math.round(ground - (SPR_ANCHOR_
-Y + frame.hip)));
+  ctx.drawImage(spr, Math.round(x - SPR_ANCHOR_X), Math.round(ground - (SPR_ANCHOR_Y + frame.hip)));
 }
 
 // ------------------------------------------------------------------
@@ -524,8 +516,7 @@ function drawRingBackground(ctx: CanvasRenderingContext2D): void {
   ctx.closePath();
   ctx.fillStyle = "#1b2346";
   ctx.fill();
-  ctx.strokeStyle = "rg
-ba(232, 184, 75, 0.35)";
+  ctx.strokeStyle = "rgba(232, 184, 75, 0.35)";
   ctx.lineWidth = 2;
   ctx.stroke();
 
@@ -594,8 +585,7 @@ function findActive(events: readonly MatchEvent[], tMs: number): MatchEvent | nu
 }
 
 function lastStarted(events: readonly MatchEvent[], tMs: number): MatchEvent | null {
-  let last: MatchEvent
- | null = null;
+  let last: MatchEvent | null = null;
   for (const e of events) {
     if (e.t <= tMs) last = e;
   }
@@ -671,8 +661,7 @@ export function drawFrame(
       }
     }
     const rest = scene.resting[side];
-    
-if (rest) {
+    if (rest) {
       desires[side] = { sample: rest.sample, flip: rest.flip, follow: false };
     }
   }
