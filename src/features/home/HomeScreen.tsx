@@ -1,17 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useCareerStore } from "../../career/store";
-import { formatDistanceToNow } from "date-fns";
-import { it } from "date-fns/locale";
+import { useCareerStore } from "../../stores/careerStore";
+import styles from "./HomeScreen.module.css";
 import pkg from "../../../package.json";
 
-function formatDate(value: string | undefined): string {
-  if (!value) return "";
-  try {
-    return formatDistanceToNow(new Date(value), { addSuffix: true, locale: it });
-  } catch {
-    return "";
-  }
+function formatDate(iso: string): string {
+  return new Intl.DateTimeFormat("it-IT", { dateStyle: "medium", timeStyle: "short" }).format(
+    new Date(iso)
+  );
 }
 
 export default function HomeScreen() {
@@ -28,52 +24,55 @@ export default function HomeScreen() {
   }, [refresh]);
 
   const latest = useMemo(() => {
-    const sorted = [...careers].sort((a, b) => (b.updatedAt ?? "").localeCompare(a.updatedAt ?? ""));
-    return sorted[0];
+    const sorted = [...careers].sort((a, b) => (a.updatedAt < b.updatedAt ? 1 : -1));
+    return sorted[0] ?? null;
   }, [careers]);
 
-  async function handleRemove(saveId: string, name: string) {
-    await remove(saveId);
-    setNotice(`${name} eliminata.`);
+  function handleDelete(saveId: string, name: string) {
+    if (window.confirm(`Eliminare definitivamente ${name}?`)) {
+      void remove(saveId);
+      setNotice(`${name} eliminata.`);
+    }
   }
 
   return (
-    <div className="page">
-      <div className="glow" aria-hidden="true" />
+    <div className={styles.page}>
+      <div className={styles.glow} aria-hidden="true" />
 
-      <header className="hero">
-        <div className="tron" aria-hidden="true">
-          <div className="bulbs">
+      <header className={styles.hero}>
+        <div className={styles.tron} aria-hidden="true">
+          <div className={styles.bulbs}>
             {Array.from({ length: 9 }, (_, i) => (
-              <span key={i} className={i % 2 === 0 ? "bulbGold" : "bulbLav"} />
+              <span key={i} className={i % 2 === 0 ? styles.bulbGold : styles.bulbLav} />
             ))}
           </div>
-          <p className="tronTitle">MAIN EVENT</p>
-          <p className="tronSub">Wrestling Manager</p>
+          <p className={styles.tronTitle}>MAIN EVENT</p>
+          <p className={styles.tronSub}>Wrestling Manager</p>
         </div>
-        <p className="kicker">Little Elsewhere</p>
+        <p className={styles.kicker}>Little Elsewhere</p>
         <h1>La sera in cui tutto è in gioco.</h1>
-        <p className="tagline">
-          Fonda una federazione, booka le tue card e porta i tuoi wrestler fino al Main Event.
+        <p className={styles.tagline}>
+          Fonda la tua federazione, booka le card e porta i tuoi wrestler fino al Main Event. Ogni
+          decisione lascia il segno.
         </p>
       </header>
 
-      <main className="actions">
-        {latest ? (
+      <main className={styles.actions}>
+        {latest && (
           <button
             type="button"
-            className="continue"
+            className={styles.continue}
             onClick={() => navigate(`/career/${latest.saveId}`)}
           >
-            <span className="continueKicker">Continua</span>
-            <span className="continueName">{latest.name}</span>
-            <span className="continueMeta">
-              {formatDate(latest.updatedAt) || "Federazione salvata"} · tocca per riprendere
+            <span className={styles.continueKicker}>Continua</span>
+            <span className={styles.continueName}>{latest.federationName}</span>
+            <span className={styles.continueMeta}>
+              GM {latest.gmName} · ultimo salvataggio: {formatDate(latest.updatedAt)}
             </span>
           </button>
-        ) : null}
+        )}
 
-        <div className="ctaRow">
+        <div className={styles.ctaRow}>
           <button type="button" className="btn btn-primary" onClick={() => navigate("/nuova")}>
             Fonda una federazione
           </button>
@@ -82,42 +81,42 @@ export default function HomeScreen() {
           </button>
         </div>
 
-        {careers.length > 0 || latest ? (
-          <button type="button" className="linkBtn" onClick={() => setShowList(true)}>
+        {careers.length > 0 && (
+          <button type="button" className={styles.linkBtn} onClick={() => setShowList(true)}>
             Le tue federazioni ({careers.length})
           </button>
-        ) : null}
+        )}
 
-        {notice ? <p className="muted">{notice}</p> : null}
+        {notice ? <p className={styles.muted}>{notice}</p> : null}
       </main>
 
-      <footer className="footer">
+      <footer className={styles.footer}>
         <p>Main Event v{pkg.version} · Little Elsewhere</p>
-        <p>un app, non un gioco</p>
+        <p className={styles.muted}>un app, non un gioco</p>
       </footer>
 
-      {showList ? (
-        <div className="overlay" role="dialog" aria-modal="true" aria-label="Le tue federazioni">
-          <div className="panel">
-            <div className="panelHead">
+      {showList && (
+        <div className={styles.overlay} role="dialog" aria-modal="true" aria-label="Le tue federazioni">
+          <div className={styles.panel}>
+            <div className={styles.panelHead}>
               <h2>Le tue federazioni</h2>
               <button type="button" className="btn" onClick={() => setShowList(false)}>
                 Chiudi
               </button>
             </div>
-            {loading ? (
-              <p className="muted">Caricamento…</p>
-            ) : careers.length === 0 ? (
-              <p className="muted">Nessuna federazione ancora. Fondane una per iniziare.</p>
+            {loading && careers.length === 0 ? (
+              <p className={styles.muted}>Caricamento…</p>
             ) : (
-              <ul className="list">
+              <ul className={styles.list}>
                 {careers.map((c) => (
-                  <li key={c.saveId} className="row">
-                    <div className="rowInfo">
-                      <strong>{c.name}</strong>
-                      <span>{formatDate(c.updatedAt) || "Federazione salvata"}</span>
+                  <li key={c.saveId} className={styles.row}>
+                    <div className={styles.rowInfo}>
+                      <strong>{c.federationName}</strong>
+                      <span>
+                        GM {c.gmName} · {formatDate(c.updatedAt)}
+                      </span>
                     </div>
-                    <div className="rowActions">
+                    <div className={styles.rowActions}>
                       <button
                         type="button"
                         className="btn btn-primary"
@@ -127,8 +126,8 @@ export default function HomeScreen() {
                       </button>
                       <button
                         type="button"
-                        className="btn"
-                        onClick={() => void handleRemove(c.saveId, c.name)}
+                        className="btn btn-danger"
+                        onClick={() => handleDelete(c.saveId, c.federationName)}
                       >
                         Elimina
                       </button>
@@ -139,7 +138,7 @@ export default function HomeScreen() {
             )}
           </div>
         </div>
-      ) : null}
+      )}
     </div>
   );
 }
