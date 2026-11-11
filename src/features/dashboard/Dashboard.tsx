@@ -41,7 +41,7 @@ export default function Dashboard() {
     <div className={styles.page}>
       <div className={styles.grid}>
         <section className={styles.card}>
-          <h2>Prossima show</h2>
+          <h2>Prossimo show</h2>
           {upcoming ? (
             <p>
               <strong>{upcoming.name}</strong> — prossima puntata: {upcoming.date}
