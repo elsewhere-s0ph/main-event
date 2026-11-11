@@ -1,5 +1,5 @@
 import type { MatchEvent, MatchResult, Side, WrestlerDef } from "../types/match";
-import { CHOREO, POSES, restingSample, sampleTrack, type PoseFrame, type PoseSample, type Track } from "./poses";
+import { CHOREO, MOVE_CHOREO, POSES, restingSample, sampleTrack, type PoseFrame, type PoseSample, type Track } from "./poses";
 
 // Renderer del ring isometrico: canvas 2D puro, scena logica 480×300
 // ridisegnata ogni frame e scalata per riempire lo spazio disponibile.
@@ -599,7 +599,10 @@ interface Desire {
 }
 
 function trackFor(event: MatchEvent, side: Side): Track {
-  return event.actor === side ? CHOREO[event.kind].actor : CHOREO[event.kind].target;
+  // La coreografia dedicata della mossa (se esiste) precede quella per tipo.
+  const specific = event.moveId ? MOVE_CHOREO[event.moveId] : undefined;
+  const choreo = specific ?? CHOREO[event.kind];
+  return event.actor === side ? choreo.actor : choreo.target;
 }
 
 export function drawFrame(
