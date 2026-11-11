@@ -1,5 +1,9 @@
 text
 resource
+repo://elsewhere-s0ph/main-event/sha/c049858bf91cd4da69bd60ffb87981b733c62824/contents/README.md
+text/plain; charset=utf-8
+text
+resource
 repo://elsewhere-s0ph/main-event/sha/6110df76d5ade70d3185a76b3bec06b040385088/contents/README.md
 text/plain; charset=utf-8
 
@@ -10,7 +14,7 @@ text/plain; charset=utf-8
 **Origine:** consolidamento di GDD 1.0 + TDD 1.0 + ADD 1.0, con le modifiche approvate in data 7 novembre 2026
 **Repo:** `elsewhere-s0ph/main-event`
 **Deploy:** https://main-event.pages.dev/
-**Stato:** sviluppo in corso — C0 superato · C1 superato (verificato dall’utente) · C2 completato (CI verde, demo /match online) · C3 completato (v0.3.0: gestionale base) · C4 completato (v0.4.0: booking, show, rivalità) · C5 completato (v0.5.0: mondo & ascolti, economia, Hall of Fame) · C6 completato nella parte non visiva (v0.6.0: tipi di match avanzati, visiva rimandata)
+**Stato:** sviluppo in corso — C0 superato · C1 superato (verificato dall’utente) · C2 completato (CI verde, demo /match online) · C3 completato (v0.3.0: gestionale base) · C4 completato (v0.4.0: booking, show, rivalità) · C5 completato (v0.5.0: mondo & ascolti, economia, Hall of Fame) · C6 completato nella parte non visiva (v0.6.0: tipi di match avanzati, visiva rimandata) · restyle UI «Notte di Main Event» (v0.7.0: l'app adotta lo schema della propria landing)
 
 > **Come usare questo documento.** È l'unica fonte di verità del progetto. Chi lavora al progetto — umano o AI — deve leggerlo prima di toccare il codice, e deve aggiornarlo quando una decisione cambia. GDD 1.0, TDD 1.0 e ADD 1.0 restano come riferimento storico, ma in caso di conflitto vince questo documento. Ogni cambiamento rilevante va registrato nel Registro decisioni (§13).
 
@@ -404,4 +408,5 @@ App installabile come PWA · funziona su PC e smartphone · utilizzabile offline
 | 10/11/2026 | C4 completato (v0.4.0): booking con card di match singoli e segmenti (promo, intervista, attacco backstage, celebrazione, annuncio), eventi speciali con nome e data, rivalità in 5 fasi narrative con intensità e calore, registrazione degli show col motore deterministico (valutazioni 5–99, verdetto), difese dei titoli e cambi di titolo in match, tempo di gioco che avanza alla data di ogni show; Dexie version(4) con rivalries/showCards/showResults | il criterio del checkpoint è raggiunto: si organizza e si svolge uno show completo; il tempo di gioco si mette in moto e le difese dei titoli contano |
 | 10/11/2026 | C5 completato (v0.5.0): federazioni AI come rivali negli ascolti (share di pubblico), economia con registro delle transazioni, classifiche, archivio, Hall of Fame; pagina /world e card "Mondo & ascolti" in dashboard | il gestionale ha un mondo con cui misurarsi e un bilancio che conta |
 | 10/11/2026 | C6, parte non visiva completata (v0.6.0): sette tipi di match (singolo, tag 2v2, triple threat, fatal 4-way, gabbia, scale, hardcore) con validazione per tipo (`matchIssues`), risoluzione deterministica dei multi-match in `matchTypes.ts` (motore 1v1 intoccato), ladder con titolo obbligatorio, cronaca dedicata per gabbia/scale/hardcore, catalogo mosse da 6 a 14. La parte visiva del C6 (arene, pubblico, effetti, entrate, sprite) è RIMANDATA alle fasi finali: Flynn fornirà gli asset | arricchire il booking senza esplodere la produzione di sprite; la timeline resta accoppiata al renderer |
+| 10/11/2026 | Restyle UI «Notte di Main Event» (v0.7.0), su richiesta e anteprima approvata da Flynn: l'app adotta lo schema della propria landing (repo `main-event-landing`) — token identici (notte #070a18, pannelli #0a0f24, oro cintura #e8b84b come colore delle azioni con glow sui pulsanti primari, lavanda #c4b5fd, bordi #1f2a4d), tema chiaro in crema #f7f3ec con toggle ☀️/🌙 flottante e persistente (chiave `main-event-theme`, anti-FOUC inline in index.html, theme-color doppi), WorldPage e MatchScreen ripuliti dai colori hardcoded (color-mix sui token) per reggere entrambi i temi. Zero tocchi a logica, motore, store e test | coerenza di famiglia app↔landing; il restyle non tocca la parte visiva rimandata (sprite, arene, entrate — asset di Flynn) |
 | 10/11/2026 | Decisione di scope C5 (Flynn): il C5 originale "universo persistente / mondo che vive da solo" è RIMANDATO — un universo con atleti delle federazioni AI e nuovi ingressi richiederebbe un pool di sprite quasi infinito. Il C5 consegnato (v0.5.0) tiene: federazioni AI ridotte a rivali negli ascolti (share di pubblico, nessun roster né sprite), economia con registro delle transazioni, classifiche, archivio e Hall of Fame. In pausa, da ricordare quando si chiederà cosa manca: mercato condiviso di wrestler, progressione temporale (invecchiamento, crescita, ritiri, nuove leve), federazioni AI che bookano show e vivono da sole | restare nel gestionale di federazione senza esplodere la produzione di sprite; il mondo si misura negli ascolti, non sul ring |
