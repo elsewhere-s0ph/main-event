@@ -128,7 +128,7 @@ export default function MatchScreen() {
         </Link>
         <h1>Match dimostrativo</h1>
         <p className={styles.muted}>
-          Prototipo del motore: stesso seed, identico spettacolo. Seed: <code>{seed}</code>
+          Prototipo del motore: stesso seed, identico spettacolo. Seed: <code>{seed}</code> · build 2026-11-11·2
         </p>
       </header>
 
