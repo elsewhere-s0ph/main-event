@@ -22,6 +22,10 @@ export interface WrestlerDef {
   finisher: string;
   colors: { trim: string; skin: string };
   stats: WrestlerStats;
+  /** Testa rasata: nessuna chioma disegnata. */
+  bald?: boolean;
+  /** Tatuaggio caratteristico: "skull" = manica di teschi. */
+  tattoo?: string;
 }
 
 export type EventKind =
