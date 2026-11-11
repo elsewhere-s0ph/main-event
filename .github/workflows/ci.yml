@@ -19,7 +19,13 @@ jobs:
       # quindi npm install invece di npm ci. L'override "rollup" in package.json
       # blocca la versione nota buona (la 4.68.2 rompeva la build).
       - run: npm install
-      - run: npm run lint
+      - name: Run npm run lint
+        run: |
+          set -o pipefail
+          npm run lint 2>&1 | tee /tmp/step-lint.log && echo "STEP_OK" >> /tmp/step-lint.log
+      - name: Diagnostica lint (errori in annotazioni)
+        if: failure()
+        run: tail -40 /tmp/step-lint.log | while IFS= read -r l; do echo "::error::$l"; done
       - run: npm run typecheck
       - run: npm run test
       - run: npm run build
