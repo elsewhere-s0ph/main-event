@@ -660,15 +660,15 @@ export function drawFrame(
     }
   }
 
-  const maxStepX = 0.11 * dtMs;
-  const maxStepY = 0.18 * dtMs;
+  const maxStepX = 0.16 * dtMs;
+  const maxStepY = 0.22 * dtMs;
   for (const side of [0, 1] as const) {
     const d = desires[side];
     const pos = scene.pos[side];
     const homeX = MAT_CX + (side === 0 ? -SLOT_DX : SLOT_DX);
     let targetX: number;
     if (d.follow) {
-      targetX = scene.pos[side === 0 ? 1 : 0].x;
+      targetX = scene.pos[side === 0 ? 1 : 0].x + (d.sample ? d.sample.dx * d.flip : 0);
     } else if (d.sample && d.sample.hold) {
       targetX = pos.x;
     } else {
