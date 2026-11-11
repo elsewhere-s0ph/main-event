@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+successfully downloaded text file (SHA: 630008eb2c7870bc41338da5414105b367ef3dff)import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useCareerStore } from "../../stores/careerStore";
 import styles from "./HomeScreen.module.css";
@@ -96,7 +96,7 @@ export default function HomeScreen() {
       </section>
 
       <footer className={styles.footer}>
-        <p className={styles.muted}>Main Event — un app, non un gioco. Little Elsewhere.</p>
+        <p className={styles.muted}>Main Event — un’app, non un gioco. Little Elsewhere.</p>
       </footer>
     </div>
   );
