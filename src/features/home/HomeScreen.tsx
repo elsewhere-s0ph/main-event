@@ -1,12 +1,17 @@
-import { useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useCareerStore } from "../../stores/careerStore";
-import styles from "./HomeScreen.module.css";
+import { useCareerStore } from "../../career/store";
+import { formatDistanceToNow } from "date-fns";
+import { it } from "date-fns/locale";
+import pkg from "../../../package.json";
 
-function formatDate(iso: string): string {
-  return new Intl.DateTimeFormat("it-IT", { dateStyle: "medium", timeStyle: "short" }).format(
-    new Date(iso)
-  );
+function formatDate(value: string | undefined): string {
+  if (!value) return "";
+  try {
+    return formatDistanceToNow(new Date(value), { addSuffix: true, locale: it });
+  } catch {
+    return "";
+  }
 }
 
 export default function HomeScreen() {
@@ -15,89 +20,126 @@ export default function HomeScreen() {
   const loading = useCareerStore((s) => s.loading);
   const refresh = useCareerStore((s) => s.refresh);
   const remove = useCareerStore((s) => s.remove);
+  const [showList, setShowList] = useState(false);
+  const [notice, setNotice] = useState("");
 
   useEffect(() => {
     void refresh();
   }, [refresh]);
 
-  const latest = [...careers].sort((a, b) => (a.updatedAt < b.updatedAt ? 1 : -1))[0] ?? null;
+  const latest = useMemo(() => {
+    const sorted = [...careers].sort((a, b) => (b.updatedAt ?? "").localeCompare(a.updatedAt ?? ""));
+    return sorted[0];
+  }, [careers]);
 
-  function handleDelete(saveId: string) {
-    if (window.confirm("Eliminare definitivamente questa federazione?")) {
-      void remove(saveId);
-    }
+  async function handleRemove(saveId: string, name: string) {
+    await remove(saveId);
+    setNotice(`${name} eliminata.`);
   }
 
   return (
-    <div className={styles.page}>
-      <header className={styles.hero}>
-        <p className={styles.kicker}>Little Elsewhere</p>
-        <h1>Main Event</h1>
-        <p className={styles.tagline}>
-          Fondi la tua federazione di wrestling, firma il roster, organizza gli show. Ogni decisione
-          lascia il segno.
+    <div className="page">
+      <div className="glow" aria-hidden="true" />
+
+      <header className="hero">
+        <div className="tron" aria-hidden="true">
+          <div className="bulbs">
+            {Array.from({ length: 9 }, (_, i) => (
+              <span key={i} className={i % 2 === 0 ? "bulbGold" : "bulbLav"} />
+            ))}
+          </div>
+          <p className="tronTitle">MAIN EVENT</p>
+          <p className="tronSub">Wrestling Manager</p>
+        </div>
+        <p className="kicker">Little Elsewhere</p>
+        <h1>La sera in cui tutto è in gioco.</h1>
+        <p className="tagline">
+          Fonda una federazione, booka le tue card e porta i tuoi wrestler fino al Main Event.
         </p>
-        <div className={styles.ctaRow}>
+      </header>
+
+      <main className="actions">
+        {latest ? (
+          <button
+            type="button"
+            className="continue"
+            onClick={() => navigate(`/career/${latest.saveId}`)}
+          >
+            <span className="continueKicker">Continua</span>
+            <span className="continueName">{latest.name}</span>
+            <span className="continueMeta">
+              {formatDate(latest.updatedAt) || "Federazione salvata"} · tocca per riprendere
+            </span>
+          </button>
+        ) : null}
+
+        <div className="ctaRow">
           <button type="button" className="btn btn-primary" onClick={() => navigate("/nuova")}>
-            Fonda una nuova federazione
+            Fonda una federazione
           </button>
           <button type="button" className="btn" onClick={() => navigate("/match")}>
             Match dimostrativo
           </button>
         </div>
-      </header>
 
-      {latest && (
-        <section className={styles.continue}>
-          <p className={styles.continueTitle}>Riprendi da dove eri</p>
-          <h2 className={styles.continueName}>{latest.federationName}</h2>
-          <p className={styles.continueMeta}>
-            GM {latest.gmName} · ultimo salvataggio: {formatDate(latest.updatedAt)}
-          </p>
-          <div className={styles.ctaRow}>
-            <button
-              type="button"
-              className="btn btn-primary"
-              onClick={() => navigate(`/career/${latest.saveId}`)}
-            >
-              Entra nella federazione
-            </button>
-          </div>
-        </section>
-      )}
+        {careers.length > 0 || latest ? (
+          <button type="button" className="linkBtn" onClick={() => setShowList(true)}>
+            Le tue federazioni ({careers.length})
+          </button>
+        ) : null}
 
-      <section>
-        <h2 className={styles.sectionTitle}>Le tue federazioni</h2>
-        {loading && careers.length === 0 && <p className={styles.muted}>Caricamento…</p>}
-        {!loading && careers.length === 0 && (
-          <p className={styles.muted}>Nessuna federazione, per ora. La prima è a un passo.</p>
-        )}
-        <ul className={styles.cards}>
-          {careers.map((c) => (
-            <li key={c.saveId} className={styles.card}>
-              <div>
-                <h3 className={styles.cardTitle}>{c.federationName}</h3>
-                <p className={styles.cardMeta}>
-                  GM {c.gmName} · seed {c.seed}
-                </p>
-                <p className={styles.cardMeta}>Ultimo salvataggio: {formatDate(c.updatedAt)}</p>
-              </div>
-              <div className={styles.cardActions}>
-                <button className="btn btn-primary" onClick={() => navigate(`/career/${c.saveId}`)}>
-                  Apri
-                </button>
-                <button className="btn btn-danger" onClick={() => handleDelete(c.saveId)}>
-                  Elimina
-                </button>
-              </div>
-            </li>
-          ))}
-        </ul>
-      </section>
+        {notice ? <p className="muted">{notice}</p> : null}
+      </main>
 
-      <footer className={styles.footer}>
-        <p className={styles.muted}>Main Event — un’app, non un gioco. Little Elsewhere.</p>
+      <footer className="footer">
+        <p>Main Event v{pkg.version} · Little Elsewhere</p>
+        <p>un app, non un gioco</p>
       </footer>
+
+      {showList ? (
+        <div className="overlay" role="dialog" aria-modal="true" aria-label="Le tue federazioni">
+          <div className="panel">
+            <div className="panelHead">
+              <h2>Le tue federazioni</h2>
+              <button type="button" className="btn" onClick={() => setShowList(false)}>
+                Chiudi
+              </button>
+            </div>
+            {loading ? (
+              <p className="muted">Caricamento…</p>
+            ) : careers.length === 0 ? (
+              <p className="muted">Nessuna federazione ancora. Fondane una per iniziare.</p>
+            ) : (
+              <ul className="list">
+                {careers.map((c) => (
+                  <li key={c.saveId} className="row">
+                    <div className="rowInfo">
+                      <strong>{c.name}</strong>
+                      <span>{formatDate(c.updatedAt) || "Federazione salvata"}</span>
+                    </div>
+                    <div className="rowActions">
+                      <button
+                        type="button"
+                        className="btn btn-primary"
+                        onClick={() => navigate(`/career/${c.saveId}`)}
+                      >
+                        Apri
+                      </button>
+                      <button
+                        type="button"
+                        className="btn"
+                        onClick={() => void handleRemove(c.saveId, c.name)}
+                      >
+                        Elimina
+                      </button>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }
