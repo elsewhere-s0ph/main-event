@@ -1,5 +1,5 @@
-import { useEffect, useState, type FormEvent } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, type FormEvent } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { useCareerStore } from "../../stores/careerStore";
 import {
   DAY_LABELS,
@@ -20,11 +20,7 @@ function formatDate(iso: string): string {
 
 export default function CareerSelect() {
   const navigate = useNavigate();
-  const careers = useCareerStore((s) => s.careers);
-  const loading = useCareerStore((s) => s.loading);
-  const refresh = useCareerStore((s) => s.refresh);
   const create = useCareerStore((s) => s.create);
-  const remove = useCareerStore((s) => s.remove);
 
   const [federationName, setFederationName] = useState("");
   const [gmName, setGmName] = useState("");
@@ -37,10 +33,6 @@ export default function CareerSelect() {
   ]);
   const [formError, setFormError] = useState<string | null>(null);
   const [creating, setCreating] = useState(false);
-
-  useEffect(() => {
-    void refresh();
-  }, [refresh]);
 
   async function handleCreate(e: FormEvent) {
     e.preventDefault();
@@ -57,12 +49,6 @@ export default function CareerSelect() {
       navigate(`/career/${res.career.saveId}`);
     } else {
       setFormError(res.error ?? "Controlla i dati inseriti");
-    }
-  }
-
-  function handleDelete(saveId: string) {
-    if (window.confirm("Eliminare definitivamente questa federazione?")) {
-      void remove(saveId);
     }
   }
 
@@ -85,8 +71,8 @@ export default function CareerSelect() {
         <p className={styles.kicker}>Little Elsewhere</p>
         <h1>Main Event</h1>
         <p className={styles.tagline}>
-          Fondi la tua federazione di wrestling, firma il roster, organizza gli show. Ogni decisione
-          lascia il segno.
+          Nome, GM, seed e identità: il resto del roster nasce dal seed. Ogni decisione lascia il
+          segno.
         </p>
       </header>
 
@@ -222,39 +208,10 @@ export default function CareerSelect() {
         </form>
       </section>
 
-      <section>
-        <h2 className={styles.sectionTitle}>Le tue federazioni</h2>
-        {loading && careers.length === 0 && <p className={styles.muted}>Caricamento…</p>}
-        {!loading && careers.length === 0 && (
-          <p className={styles.muted}>Nessuna federazione, per ora. La prima è a un passo.</p>
-        )}
-        <ul className={styles.cards}>
-          {careers.map((c) => (
-            <li key={c.saveId} className={styles.card}>
-              <div>
-                <h3 className={styles.cardTitle}>{c.federationName}</h3>
-                <p className={styles.cardMeta}>
-                  GM {c.gmName} · seed {c.seed}
-                </p>
-                <p className={styles.cardMeta}>Ultimo salvataggio: {formatDate(c.updatedAt)}</p>
-              </div>
-              <div className={styles.cardActions}>
-                <button className="btn btn-primary" onClick={() => navigate(`/career/${c.saveId}`)}>
-                  Apri
-                </button>
-                <button className="btn btn-danger" onClick={() => handleDelete(c.saveId)}>
-                  Elimina
-                </button>
-              </div>
-            </li>
-          ))}
-        </ul>
-      </section>
-
       <footer className={styles.footer}>
-        <p className={styles.muted}>
-          Checkpoint C5 — mondo, ascolti ed economia in gioco. Prossimo passo: contenuti e restyle 32-bit.
-        </p>
+        <Link to="/" className={styles.back}>
+          ← Torna alla home
+        </Link>
       </footer>
     </div>
   );
