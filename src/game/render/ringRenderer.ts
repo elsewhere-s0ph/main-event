@@ -617,7 +617,7 @@ function trackFor(event: MatchEvent, side: Side): Track {
   // La coreografia dedicata della mossa (se esiste) precede quella per tipo.
   const specific = event.moveId ? MOVE_CHOREO[event.moveId] : undefined;
   const choreo = specific ?? CHOREO[event.kind];
-  const onTarget = FLOOR_KINDS.has(event.kind) ? side === event.actor : event.actor === side;
+  const onTarget = FLOOR_KINDS.has(event.kind) ? side === event.actor : side !== event.actor;
   return onTarget ? choreo.target : choreo.actor;
 }
 
