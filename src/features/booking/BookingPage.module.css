@@ -4,7 +4,7 @@
   padding: 24px 16px 56px;
   display: flex;
   flex-direction: column;
-  gap: 22px;
+  gap: 28px;
 }
 
 .header h1 {
@@ -64,7 +64,9 @@
 }
 
 .card h3 {
-  margin: 20px 0 8px;
+  margin: 26px 0 12px;
+  padding-top: 18px;
+  border-top: 1px solid var(--surface-2);
   font-size: 0.85rem;
   color: var(--muted);
   text-transform: uppercase;
@@ -82,7 +84,7 @@
   background: var(--surface);
   color: var(--muted);
   border-radius: 999px;
-  padding: 8px 14px;
+  padding: 9px 16px;
   font-weight: 600;
   font-size: 0.88rem;
   cursor: pointer;
@@ -104,7 +106,7 @@
   align-items: baseline;
   gap: 10px;
   flex-wrap: wrap;
-  margin-bottom: 14px;
+  margin-bottom: 18px;
 }
 
 .nextDate {
@@ -114,21 +116,21 @@
 
 .items {
   list-style: none;
-  margin: 0 0 14px;
+  margin: 0 0 16px;
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
 }
 
 .item {
   display: flex;
   align-items: baseline;
-  gap: 10px;
+  gap: 12px;
   flex-wrap: wrap;
   border: 1px dashed var(--surface-2);
   border-radius: 10px;
-  padding: 10px 14px;
+  padding: 12px 14px;
 }
 
 .itemKind {
@@ -182,6 +184,7 @@
   align-items: center;
   gap: 8px;
   flex-wrap: wrap;
+  margin-top: 10px;
 }
 
 .formRow select,
@@ -209,7 +212,7 @@
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
-  margin-top: 8px;
+  margin: 10px 0 6px;
 }
 
 .chip {
@@ -229,7 +232,7 @@
   border: 1px solid var(--surface-2);
   border-radius: 10px;
   overflow: hidden;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
 }
 
 .segmented button {
@@ -257,7 +260,11 @@
   display: flex;
   gap: 10px;
   flex-wrap: wrap;
-  margin-top: 14px;
+  margin-top: 18px;
+}
+
+.actions + .muted {
+  margin-top: 10px;
 }
 
 .smallBtn {
@@ -282,10 +289,10 @@
 }
 
 .resultBox {
-  margin-top: 14px;
+  margin-top: 18px;
   border: 1px solid var(--gold);
   border-radius: 10px;
-  padding: 14px;
+  padding: 16px;
   background: color-mix(in srgb, var(--gold) 6%, transparent);
 }
 
@@ -309,7 +316,7 @@
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 9px;
+  gap: 11px;
   font-size: 0.92rem;
 }
 
@@ -319,7 +326,7 @@
   align-items: baseline;
   flex-wrap: wrap;
   border-bottom: 1px dashed var(--surface-2);
-  padding-bottom: 9px;
+  padding-bottom: 11px;
 }
 
 .outcome:last-child {
@@ -342,10 +349,10 @@
 .rivalry {
   border: 1px solid var(--surface-2);
   border-radius: 10px;
-  padding: 14px 16px;
+  padding: 16px 18px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
 }
 
 .rivalryHead {
@@ -395,7 +402,7 @@
   font-size: 0.84rem;
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 4px;
 }
 
 .historyList {
@@ -404,7 +411,7 @@
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 9px;
+  gap: 11px;
   font-size: 0.92rem;
 }
 
@@ -414,7 +421,7 @@
   gap: 10px;
   flex-wrap: wrap;
   border-bottom: 1px dashed var(--surface-2);
-  padding-bottom: 9px;
+  padding-bottom: 11px;
 }
 
 .historyRow:last-child {
