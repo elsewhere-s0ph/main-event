@@ -17,7 +17,9 @@ function computeUi(events: readonly MatchEvent[], tMs: number): UiState {
   let energy: readonly [number, number] = [100, 100];
   const feed: { id: number; text: string }[] = [];
   for (const e of events) {
-    if (e.t > tMs) break;
+    // Cronaca ed energia mostrano l'evento al suo impatto (impactMs), non
+    // all'inizio: il testo arriva quando il colpo visivamente atterra.
+    if (e.t + (e.impactMs ?? 0) > tMs) break;
     energy = e.energyAfter;
     feed.push({ id: e.id, text: e.text });
   }
