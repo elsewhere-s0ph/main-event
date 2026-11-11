@@ -1,4 +1,4 @@
-import type { MatchEvent, MatchResult, Side, WrestlerDef } from "../types/match";
+import type { EventKind, MatchEvent, MatchResult, Side, WrestlerDef } from "../types/match";
 import { CHOREO, MOVE_CHOREO, POSES, restingSample, sampleTrack, type PoseFrame, type PoseSample, type Track } from "./poses";
 
 // Renderer del ring isometrico: canvas 2D puro, scena logica 480×300
