@@ -5,13 +5,15 @@ import type { WrestlerDef } from "../types/match";
 
 export const DEMO_WRESTLERS: readonly [WrestlerDef, WrestlerDef] = [
   {
-    id: "monolite",
-    name: "Il Monolite",
-    nickname: "La parete che cammina",
+    id: "skullcrusher",
+    name: "Skullcrusher",
+    nickname: "La parete tatuata",
     bodyType: "heavyweight",
-    finisher: "Frana Mortale",
-    colors: { trim: "#2dd4bf", skin: "#d9b08c" },
+    finisher: "Sit-Out Powerbomb",
+    colors: { trim: "#f97316", skin: "#a05e33" },
     stats: { power: 9, agility: 4, stamina: 8 },
+    bald: true,
+    tattoo: "skull",
   },
   {
     id: "vespa",
