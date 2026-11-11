@@ -40,6 +40,10 @@
   padding: 20px;
 }
 
+.card :global(.btn) {
+  margin-top: 14px;
+}
+
 .card h2 {
   margin: 0 0 12px;
   font-size: 1.05rem;
