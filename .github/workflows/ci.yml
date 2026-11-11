@@ -20,11 +20,28 @@ jobs:
       - name: Run npm install
         run: |
           set -o pipefail
-          npm install 2>&1 | tee /tmp/install.log
-      - name: Diagnostica install (errori in annotazioni)
+          npm install 2>&1 | tee /tmp/step-install.log && echo "STEP_OK" >> /tmp/step-install.log
+      - name: Run npm run lint
+        run: |
+          set -o pipefail
+          npm run lint 2>&1 | tee /tmp/step-lint.log && echo "STEP_OK" >> /tmp/step-lint.log
+      - name: Run npm run typecheck
+        run: |
+          set -o pipefail
+          npm run typecheck 2>&1 | tee /tmp/step-typecheck.log && echo "STEP_OK" >> /tmp/step-typecheck.log
+      - name: Run npm run test
+        run: |
+          set -o pipefail
+          npm run test 2>&1 | tee /tmp/step-test.log && echo "STEP_OK" >> /tmp/step-test.log
+      - name: Run npm run build
+        run: |
+          set -o pipefail
+          npm run build 2>&1 | tee /tmp/step-build.log && echo "STEP_OK" >> /tmp/step-build.log
+      - name: Diagnostica (errori in annotazioni)
         if: failure()
-        run: tail -40 /tmp/install.log | while IFS= read -r l; do echo "::error::$l"; done
-      - run: npm run lint
-      - run: npm run typecheck
-      - run: npm run test
-      - run: npm run build
+        run: |
+          for f in /tmp/step-install.log /tmp/step-lint.log /tmp/step-typecheck.log /tmp/step-test.log /tmp/step-build.log; do
+            if [ -f "$f" ] && ! tail -1 "$f" | grep -q "STEP_OK"; then
+              tail -30 "$f" | while IFS= read -r l; do echo "::error::$l"; done
+            fi
+          done
