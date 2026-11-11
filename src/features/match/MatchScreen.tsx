@@ -128,7 +128,7 @@ export default function MatchScreen() {
         </Link>
         <h1>Match dimostrativo</h1>
         <p className={styles.muted}>
-          Prototipo del motore: stesso seed, identico spettacolo. Seed: <code>{seed}</code> · build 2026-11-11·2
+          Prototipo del motore: stesso seed, identico spettacolo. Seed: <code>{seed}</code>
         </p>
       </header>
 
@@ -214,7 +214,7 @@ export default function MatchScreen() {
       </div>
 
       <section className={styles.feedCard} aria-label="Cronaca">
-        <h2>Cronaca · build 2026-11-11·2</h2>
+        <h2>Cronaca</h2>
         <ul className={styles.feed}>
           {ui.feed.map((f, i) => (
             <li key={f.id} className={i === ui.feed.length - 1 ? styles.latest : undefined}>
