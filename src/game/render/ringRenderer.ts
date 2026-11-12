@@ -309,7 +309,7 @@ function drawHDHead(
 const spriteCache = new Map<string, HTMLCanvasElement>();
 
 function quantize(v: number): number {
-  return Math.round(v * 20) / 20;
+  return Math.round(v * 40) / 40;
 }
 
 function wrestlerSprite(def: WrestlerDef, frame: PoseFrame, facing: number): HTMLCanvasElement {
@@ -323,7 +323,7 @@ function wrestlerSprite(def: WrestlerDef, frame: PoseFrame, facing: number): HTM
   ].join("|");
   const hit = spriteCache.get(key);
   if (hit) return hit;
-  if (spriteCache.size > 400) spriteCache.clear();
+  if (spriteCache.size > 800) spriteCache.clear();
 
   const cv = document.createElement("canvas");
   cv.width = SPR_W;
@@ -442,9 +442,9 @@ function drawWrestler(
   ctx.fill();
   ctx.restore();
 
-  // Molleggio quantizzato: stabile dentro lo stesso spicchio da 60 ms,
-  // così la cache degli sprite non viene invalidata a ogni frame.
-  const bob = Math.sin(Math.round(wallMs / 60) * 60 / 420) * 1.1;
+  // Molleggio continuo: è solo un offset di disegno, non entra nella
+  // chiave di cache, quindi gli sprite quantizzati restano stabili.
+  const bob = Math.sin(wallMs / 420) * 1.1;
   const ground = GROUND_Y - lift + bob;
   const spr = wrestlerSprite(def, frame, facing);
   ctx.drawImage(spr, Math.round(x - SPR_ANCHOR_X), Math.round(ground - (SPR_ANCHOR_Y + frame.hip)));
