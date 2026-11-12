@@ -40,6 +40,9 @@ export type PoseId =
   | "moonsaultAir"
   | "enzuigiriKick"
   | "ddtFall"
+  | "throatLift"
+  | "invertHang"
+  | "flailBack"
   | "winPose";
 
 export const POSES: Record<PoseId, PoseFrame> = {
@@ -64,6 +67,10 @@ export const POSES: Record<PoseId, PoseFrame> = {
   moonsaultAir: { hip: 30, lean: -2.6, headTilt: -0.2, armFar: [-1.5, 0.4], armNear: [-1.4, 0.5], legFar: [0.7, 0.9], legNear: [0.6, 1.0] },
   enzuigiriKick: { hip: 44, lean: -0.35, headTilt: 0, armFar: [-0.7, 0.4], armNear: [0.9, 0.3], legFar: [-0.1, 0.05], legNear: [1.9, 0.15] },
   ddtFall: { hip: 14, lean: -1.2, headTilt: -0.2, armFar: [-1.0, 0.3], armNear: [-0.9, 0.35], legFar: [0.5, -0.3], legNear: [0.4, -0.2] },
+  // Pose-reazione della vittima: vendono la mossa chi la subisce.
+  throatLift: { hip: 47, lean: -0.05, headTilt: -0.35, armFar: [-0.55, 0.3], armNear: [-0.7, 0.2], legFar: [0.4, 0.55], legNear: [0.2, 0.65] },
+  invertHang: { hip: 46, lean: -3.0, headTilt: -0.3, armFar: [-0.45, 0.2], armNear: [-0.6, 0.25], legFar: [2.95, 0.1], legNear: [2.85, -0.1] },
+  flailBack: { hip: 44, lean: -0.95, headTilt: -0.4, armFar: [2.2, 0.45], armNear: [2.4, 0.35], legFar: [0.9, -0.4], legNear: [0.7, -0.5] },
   winPose: { hip: 47, lean: -0.1, headTilt: -0.15, armFar: [0.9, 0.2], armNear: [2.65, 0.15], legFar: [0.1, -0.05], legNear: [-0.15, 0.12] },
 };
 
