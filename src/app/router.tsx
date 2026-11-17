@@ -24,6 +24,7 @@ export const router = createBrowserRouter([
       { path: "titles", element: <TitlesPage /> },
       { path: "federation", element: <FederationPage /> },
       { path: "booking", element: <BookingPage /> },
+      { path: "match/:resultId", element: <MatchScreen /> },
       { path: "world", element: <WorldPage /> },
     ],
   },
