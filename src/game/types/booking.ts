@@ -2,6 +2,7 @@
 // La card è ciò che il GM compone; l'esito è ciò che lo show produce.
 // Stesso decoupling degli altri modelli: i tipi descrivono il dominio,
 // la UI li racconta e i repository li persistono.
+import type { MatchResult } from "./match";
 
 export type SegmentKind =
   | "promo"
@@ -68,6 +69,8 @@ export interface MatchOutcome {
   titleChange: { titleId: string; newChampionId: string } | null;
   /** True se il campione in carica ha difeso con successo. */
   defense: boolean;
+  /** Timeline del motore per i match 1v1 (sistema dei match, v0.10.0): permette di riguardare l'incontro. Null per i multi-match, solo di cronaca. */
+  sim?: MatchResult | null;
 }
 
 export interface SegmentOutcome {
