@@ -533,6 +533,14 @@ export default function BookingPage() {
                         o.text
                       )}
                     </span>
+                    {o.kind === "match" && (
+                      <Link
+                        className={styles.watchLink}
+                        to={`/career/${current.saveId}/match/${encodeURIComponent(lastResult.id)}?n=${i}`}
+                      >
+                        Guarda il match
+                      </Link>
+                    )}
                   </li>
                 ))}
               </ul>
@@ -677,16 +685,27 @@ export default function BookingPage() {
           <p className={styles.muted}>Nessuno show registrato: la storia comincia adesso.</p>
         ) : (
           <ul className={styles.historyList}>
-            {results.slice(0, 10).map((r) => (
-              <li key={r.id} className={styles.historyRow}>
-                <span className={styles.historyRating}>{r.rating}/100</span>
-                <strong>{r.showName}</strong>
-                <span className={styles.muted}>
-                  {fmtDate(r.date)}
-                  {r.isSpecial ? " · evento speciale" : ""}
-                </span>
-              </li>
-            ))}
+            {results.slice(0, 10).map((r) => {
+              const firstMatch = r.outcomes.findIndex((o) => o.kind === "match");
+              return (
+                <li key={r.id} className={styles.historyRow}>
+                  <span className={styles.historyRating}>{r.rating}/100</span>
+                  <strong>{r.showName}</strong>
+                  <span className={styles.muted}>
+                    {fmtDate(r.date)}
+                    {r.isSpecial ? " · evento speciale" : ""}
+                  </span>
+                  {firstMatch >= 0 && (
+                    <Link
+                      className={styles.watchLink}
+                      to={`/career/${current.saveId}/match/${encodeURIComponent(r.id)}?n=${firstMatch}`}
+                    >
+                      Guarda il match
+                    </Link>
+                  )}
+                </li>
+              );
+            })}
           </ul>
         )}
       </section>
