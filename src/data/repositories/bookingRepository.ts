@@ -43,6 +43,11 @@ export async function addShowResult(result: ShowResult): Promise<void> {
   await db.showResults.put(result);
 }
 
+/** Risultato registrato per id (deep link «Guarda il match», sistema dei match v0.10.0). */
+export async function getShowResult(id: string): Promise<ShowResult | null> {
+  return (await db.showResults.get(id)) ?? null;
+}
+
 /** Cancella card e risultati di una federazione (con la federazione). */
 export async function removeBookingData(saveId: string): Promise<void> {
   await db.showCards.where("saveId").equals(saveId).delete();
