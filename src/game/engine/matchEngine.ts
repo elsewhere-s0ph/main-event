@@ -23,7 +23,7 @@ interface MoveDef {
   impactMs?: number;
 }
 
-const MOVES: readonly MoveDef[] = [
+export const MOVES: readonly MoveDef[] = [
   { id: "elbow", name: "Gomitata", kind: "strike", base: 5, favors: "agility", durMs: 1000, impactMs: 450 },
   { id: "clothesline", name: "Clothesline", kind: "strike", base: 7, favors: "agility", durMs: 1000, impactMs: 420 },
   { id: "dropkick", name: "Dropkick", kind: "strike", base: 8, favors: "agility", durMs: 1100, impactMs: 480 },
@@ -45,9 +45,9 @@ const MOVES: readonly MoveDef[] = [
 
 // Il finisher è testo libero: quando coincide con una mossa del catalogo
 // (es. "Sit-Out Powerbomb") ricaviamo l'id per le coreografie dedicate.
-const FINISHER_MOVE_ID = new Map(MOVES.map((m) => [m.name.toLowerCase(), m.id]));
+export const FINISHER_MOVE_ID = new Map(MOVES.map((m) => [m.name.toLowerCase(), m.id]));
 
-const DUR = {
+export const DUR = {
   entrance: 1500,
   approach: 1200,
   lockup: 900,
@@ -62,11 +62,11 @@ const DUR = {
 
 const MAX_TURNS = 30;
 
-function clampEnergy(v: number): number {
+export function clampEnergy(v: number): number {
   return Math.max(0, Math.min(100, v));
 }
 
-function pick<T>(rnd: () => number, options: readonly T[]): T {
+export function pick<T>(rnd: () => number, options: readonly T[]): T {
   return options[Math.floor(rnd() * options.length)] as T;
 }
 
