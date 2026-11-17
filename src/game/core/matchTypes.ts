@@ -1,10 +1,11 @@
 import type { MatchType } from "../types/booking";
 import type { Wrestler } from "../types/roster";
 
-// Tipi di match (C6, parte non visiva): catalogo, validazione e risoluzione
-// dei match a più atleti. Il motore 1v1 resta intoccabile (la timeline è
-// accoppiata al renderer): tag, triple threat e fatal 4-way si risolvono qui,
-// in puro e deterministico. Gabbia, scale e hardcore restano 1v1 con flavor.
+// Tipi di match (C6): catalogo e validazione. I match a più atleti (tag,
+// triple threat, fatal 4-way) sono risolti dal motore dedicato
+// multiMatchEngine, con timeline da ring: resolveMultiMatch qui sotto resta
+// come risoluzione in puro di riferimento ma non è più usata da runShow.
+// Gabbia, scale e hardcore restano 1v1 col motore intoccato, con flavor.
 
 export interface MatchTypeDef {
   id: MatchType;
