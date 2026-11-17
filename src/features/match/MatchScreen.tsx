@@ -13,12 +13,12 @@ import styles from "./MatchScreen.module.css";
 const SPEEDS = [0.5, 1, 2, 4] as const;
 
 interface UiState {
-  energy: readonly [number, number];
+  energy: readonly number[];
   feed: readonly { id: number; text: string }[];
 }
 
-function computeUi(events: readonly MatchEvent[], tMs: number): UiState {
-  let energy: readonly [number, number] = [100, 100];
+function computeUi(events: readonly MatchEvent[], tMs: number, count: number): UiState {
+  let energy: readonly number[] = new Array(count).fill(100);
   const feed: { id: number; text: string }[] = [];
   for (const e of events) {
     // Cronaca ed energia mostrano l'evento al suo impatto (impactMs), non
@@ -88,9 +88,15 @@ export default function MatchScreen() {
     // Risultati registrati prima del sistema dei match: si rigioca dal seed
     // col roster attuale — stesso seed, identico spettacolo (Documento Master §5.2).
     const byId = new Map(useCareerStore.getState().roster.map((w) => [w.id, w] as const));
-    const [a, b] = bookedOutcome.match.wrestlerIds.map((id) => byId.get(id));
-    if (!a || !b) return null;
-    return simulateMatch([toWrestlerDef(a), toWrestlerDef(b)], bookedOutcome.seed);
+    const ids = bookedOutcome.match.wrestlerIds;
+    const defs = ids
+      .map((id) => byId.get(id))
+      .filter((w): w is NonNullable<ReturnType<typeof byId.get>> => Boolean(w));
+    if (defs.length !== ids.length) return null;
+    // I multi registrati prima del motore multi restano di cronaca: la vecchia
+    // risoluzione non è riproducibile dal seed (produrrebbe un altro esito).
+    if (defs.length !== 2) return null;
+    return simulateMatch([toWrestlerDef(defs[0]), toWrestlerDef(defs[1])], bookedOutcome.seed);
   }, [bookedOutcome]);
 
   const result = isBooked ? bookedResult : demoResult;
@@ -120,10 +126,10 @@ export default function MatchScreen() {
     if (!result) return;
     tRef.current = 0;
     doneRef.current = false;
-    sceneRef.current = createScene();
+    sceneRef.current = createScene(result.wrestlers.length);
     setFinished(false);
     setPlaying(true);
-    setUi(computeUi(result.events, 0));
+    setUi(computeUi(result.events, 0, result.wrestlers.length));
   }, [result]);
 
   useEffect(() => {
@@ -154,7 +160,7 @@ export default function MatchScreen() {
       drawFrame(ctx, w, h, result, tRef.current, sceneRef.current, dt, now);
       if (now - lastUi > 120) {
         lastUi = now;
-        setUi(computeUi(result.events, tRef.current));
+        setUi(computeUi(result.events, tRef.current, result.wrestlers.length));
       }
       raf = requestAnimationFrame(loop);
     };
@@ -166,10 +172,10 @@ export default function MatchScreen() {
     if (!result) return;
     tRef.current = 0;
     doneRef.current = false;
-    sceneRef.current = createScene();
+    sceneRef.current = createScene(result.wrestlers.length);
     setFinished(false);
     setPlaying(true);
-    setUi(computeUi(result.events, 0));
+    setUi(computeUi(result.events, 0, result.wrestlers.length));
   };
 
   const newMatch = () => {
@@ -196,8 +202,8 @@ export default function MatchScreen() {
   }
 
   if (!result) {
-    // Show caricato ma match non riproducibile sul ring: multi-match (nessuna
-    // timeline, per ora) o atleti non più nel roster. Resta la cronaca.
+    // Show caricato ma match non riproducibile sul ring: atleti non più nel
+    // roster o multi-match registrati prima del motore multi. Resta la cronaca.
     return (
       <div className={styles.page}>
         <header className={styles.header}>
@@ -211,7 +217,7 @@ export default function MatchScreen() {
           <h2>Cronaca</h2>
           <p className={styles.muted}>
             {bookedOutcome?.summary ??
-              "Questo incontro non è riproducibile sul ring: i match a più atleti restano solo di cronaca, per ora."}
+              "Questo incontro non è riproducibile sul ring: gli atleti non sono più nel roster."}
           </p>
         </section>
       </div>
@@ -220,7 +226,8 @@ export default function MatchScreen() {
 
   const [wa, wb] = result.wrestlers;
   const winner = result.wrestlers[result.winner];
-  const loser = result.wrestlers[result.winner === 0 ? 1 : 0];
+  const loserIdx = typeof result.loser === "number" ? result.loser : result.winner === 0 ? 1 : 0;
+  const loser = result.wrestlers[loserIdx];
   const lastUi = ui.feed[ui.feed.length - 1];
 
   return (
@@ -252,6 +259,7 @@ export default function MatchScreen() {
         )}
       </header>
 
+      {result.wrestlers.length === 2 ? (
       <div className={styles.hud}>
         <div className={styles.side}>
           <span className={styles.name}>{wa.name}</span>
@@ -275,6 +283,22 @@ export default function MatchScreen() {
           </div>
         </div>
       </div>
+      ) : (
+      <div className={styles.hudMulti}>
+        {result.wrestlers.map((w, i) => (
+          <div key={w.id} className={styles.multiRow}>
+            <span className={styles.multiName}>{w.name}</span>
+            <div className={styles.bar}>
+              <div
+                className={styles.fill}
+                style={{ width: `${Math.round(ui.energy[i] ?? 100)}%` }}
+                data-low={(ui.energy[i] ?? 100) < 30}
+              />
+            </div>
+          </div>
+        ))}
+      </div>
+      )}
 
       <div className={styles.stageWrap}>
         <canvas ref={canvasRef} className={styles.stage} aria-label="Ring isometrico con il match in corso" />
