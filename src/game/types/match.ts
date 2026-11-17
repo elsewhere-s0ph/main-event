@@ -48,8 +48,10 @@ export interface MatchEvent {
   /** Durata dell'animazione, in ms. */
   durMs: number;
   kind: EventKind;
-  /** Chi esegue l'azione. */
-  actor: Side;
+  /** Chi esegue l'azione (indice tra i partecipanti; 0–1 nei match 1v1). */
+  actor: number;
+  /** Chi subisce l'azione, nei match a più atleti (dove pertinente). */
+  target?: number;
   /** Nome della mossa per la cronaca ("" se non pertinente). */
   moveName: string;
   damage: number;
@@ -59,16 +61,18 @@ export interface MatchEvent {
   moveId?: string;
   /** Istante dell'impatto dentro l'evento, in ms (default 0: testo a inizio evento). */
   impactMs?: number;
-  /** Energia di entrambi al termine dell'evento (0–100). */
-  energyAfter: readonly [number, number];
+  /** Energia di tutti i partecipanti al termine dell'evento (0–100). */
+  energyAfter: readonly number[];
 }
 
 export interface MatchResult {
   seed: string;
-  wrestlers: readonly [WrestlerDef, WrestlerDef];
-  winner: Side;
+  wrestlers: readonly WrestlerDef[];
+  winner: number;
+  /** Chi perde, nei match a più atleti (nei 1v1 è l'altro lato). */
+  loser?: number;
   events: readonly MatchEvent[];
   durationMs: number;
-  finalEnergy: readonly [number, number];
+  finalEnergy: readonly number[];
   summary: string;
 }
