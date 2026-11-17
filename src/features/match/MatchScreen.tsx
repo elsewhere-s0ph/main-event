@@ -1,8 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link, useParams, useSearchParams } from "react-router-dom";
 import { DEMO_WRESTLERS } from "../../game/engine/demoRoster";
 import { simulateMatch } from "../../game/engine/matchEngine";
-import type { MatchEvent } from "../../game/types/match";
+import { getShowResult } from "../../data/repositories/bookingRepository";
+import { toWrestlerDef } from "../../game/types/roster";
+import { useCareerStore } from "../../stores/careerStore";
+import type { MatchEvent, MatchResult } from "../../game/types/match";
+import type { MatchOutcome, ShowResult } from "../../game/types/booking";
 import { createScene, drawFrame } from "../../game/render/ringRenderer";
 import styles from "./MatchScreen.module.css";
 
@@ -31,15 +35,70 @@ function fmtDuration(ms: number): string {
   return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
 }
 
+function fmtDate(iso: string): string {
+  return new Intl.DateTimeFormat("it-IT", { dateStyle: "long" }).format(
+    new Date(`${iso}T00:00:00Z`)
+  );
+}
+
 export default function MatchScreen() {
+  const { saveId, resultId } = useParams();
   const [params, setParams] = useSearchParams();
+
+  // Due modalità, stesso motore e stesso schermo:
+  // - demo (/match): il prototipo del motore, seed via query;
+  // - federazione (/career/:saveId/match/:resultId): si rigioca un match
+  //   registrato, con la timeline conservata nell'esito (sistema dei match).
+  const isBooked = Boolean(saveId && resultId);
+  const outcomeIndex = Math.max(0, Number.parseInt(params.get("n") ?? "0", 10) || 0);
+
   const seed = params.get("seed") ?? "main-event";
-  const result = useMemo(() => simulateMatch(DEMO_WRESTLERS, seed), [seed]);
+  const demoResult = useMemo(() => simulateMatch(DEMO_WRESTLERS, seed), [seed]);
+
+  const [showResult, setShowResult] = useState<ShowResult | null>(null);
+  const [loadState, setLoadState] = useState<"loading" | "ready" | "missing">("loading");
+  useEffect(() => {
+    if (!resultId) return;
+    let alive = true;
+    setLoadState("loading");
+    setShowResult(null);
+    getShowResult(resultId)
+      .then((r) => {
+        if (!alive) return;
+        setShowResult(r);
+        setLoadState(r ? "ready" : "missing");
+      })
+      .catch(() => {
+        if (alive) setLoadState("missing");
+      });
+    return () => {
+      alive = false;
+    };
+  }, [resultId]);
+
+  const bookedOutcome: MatchOutcome | null = useMemo(() => {
+    if (!isBooked || !showResult) return null;
+    const o = showResult.outcomes[outcomeIndex];
+    return o && o.kind === "match" ? o : null;
+  }, [isBooked, showResult, outcomeIndex]);
+
+  const bookedResult: MatchResult | null = useMemo(() => {
+    if (!bookedOutcome) return null;
+    if (bookedOutcome.sim) return bookedOutcome.sim;
+    // Risultati registrati prima del sistema dei match: si rigioca dal seed
+    // col roster attuale — stesso seed, identico spettacolo (Documento Master §5.2).
+    const byId = new Map(useCareerStore.getState().roster.map((w) => [w.id, w] as const));
+    const [a, b] = bookedOutcome.match.wrestlerIds.map((id) => byId.get(id));
+    if (!a || !b) return null;
+    return simulateMatch([toWrestlerDef(a), toWrestlerDef(b)], bookedOutcome.seed);
+  }, [bookedOutcome]);
+
+  const result = isBooked ? bookedResult : demoResult;
 
   const [playing, setPlaying] = useState(true);
   const [speedIdx, setSpeedIdx] = useState(1);
   const [finished, setFinished] = useState(false);
-  const [ui, setUi] = useState<UiState>(() => computeUi(result.events, 0));
+  const [ui, setUi] = useState<UiState>({ energy: [100, 100], feed: [] });
 
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const tRef = useRef(0);
@@ -56,8 +115,9 @@ export default function MatchScreen() {
     speedRef.current = SPEEDS[speedIdx];
   }, [speedIdx]);
 
-  // Reset della riproduzione a ogni nuovo incontro (nuovo seed).
+  // Reset della riproduzione a ogni nuovo incontro (timeline diversa).
   useEffect(() => {
+    if (!result) return;
     tRef.current = 0;
     doneRef.current = false;
     sceneRef.current = createScene();
@@ -67,6 +127,7 @@ export default function MatchScreen() {
   }, [result]);
 
   useEffect(() => {
+    if (!result) return;
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
@@ -102,6 +163,7 @@ export default function MatchScreen() {
   }, [result]);
 
   const replay = () => {
+    if (!result) return;
     tRef.current = 0;
     doneRef.current = false;
     sceneRef.current = createScene();
@@ -115,6 +177,47 @@ export default function MatchScreen() {
     setParams({ seed: s });
   };
 
+  if (isBooked && loadState !== "ready") {
+    return (
+      <div className={styles.page}>
+        <header className={styles.header}>
+          <Link to={saveId ? `/career/${saveId}/booking` : "/"} className={styles.back}>
+            ← Booking
+          </Link>
+          <h1>Match</h1>
+          <p className={styles.muted}>
+            {loadState === "loading"
+              ? "Carico il match…"
+              : "Risultato non trovato: lo show potrebbe essere stato rimosso."}
+          </p>
+        </header>
+      </div>
+    );
+  }
+
+  if (!result) {
+    // Show caricato ma match non riproducibile sul ring: multi-match (nessuna
+    // timeline, per ora) o atleti non più nel roster. Resta la cronaca.
+    return (
+      <div className={styles.page}>
+        <header className={styles.header}>
+          <Link to={saveId ? `/career/${saveId}/booking` : "/"} className={styles.back}>
+            ← Booking
+          </Link>
+          <h1>{showResult?.showName ?? "Match"}</h1>
+          <p className={styles.muted}>{showResult?.date ? fmtDate(showResult.date) : ""}</p>
+        </header>
+        <section className={styles.feedCard} aria-label="Cronaca">
+          <h2>Cronaca</h2>
+          <p className={styles.muted}>
+            {bookedOutcome?.summary ??
+              "Questo incontro non è riproducibile sul ring: i match a più atleti restano solo di cronaca, per ora."}
+          </p>
+        </section>
+      </div>
+    );
+  }
+
   const [wa, wb] = result.wrestlers;
   const winner = result.wrestlers[result.winner];
   const loser = result.wrestlers[result.winner === 0 ? 1 : 0];
@@ -123,13 +226,30 @@ export default function MatchScreen() {
   return (
     <div className={styles.page}>
       <header className={styles.header}>
-        <Link to="/" className={styles.back}>
-          ← Federazioni
-        </Link>
-        <h1>Match dimostrativo</h1>
-        <p className={styles.muted}>
-          Prototipo del motore: stesso seed, identico spettacolo. Seed: <code>{seed}</code>
-        </p>
+        {isBooked ? (
+          <Link to={`/career/${saveId}/booking`} className={styles.back}>
+            ← Booking
+          </Link>
+        ) : (
+          <Link to="/" className={styles.back}>
+            ← Federazioni
+          </Link>
+        )}
+        {isBooked ? (
+          <>
+            <h1>{showResult?.showName ?? "Match"}</h1>
+            <p className={styles.muted}>
+              {showResult?.date ? `${fmtDate(showResult.date)} · match della card` : "Match della card"}
+            </p>
+          </>
+        ) : (
+          <>
+            <h1>Match dimostrativo</h1>
+            <p className={styles.muted}>
+              Prototipo del motore: stesso seed, identico spettacolo. Seed: <code>{seed}</code>
+            </p>
+          </>
+        )}
       </header>
 
       <div className={styles.hud}>
@@ -167,17 +287,22 @@ export default function MatchScreen() {
           <div className={styles.overlay} role="dialog" aria-label="Risultato">
             <p className={styles.kicker}>Fine del match</p>
             <h2 className={styles.winner}>{winner.name}</h2>
-            <p className={styles.summary}>{result.summary}</p>
+            <p className={styles.summary}>{bookedOutcome?.summary ?? result.summary}</p>
+            {bookedOutcome?.defense && <p className={styles.muted}>Titolo difeso con successo.</p>}
+            {bookedOutcome?.titleChange && <p className={styles.muted}>Titolo cambiato di mani!</p>}
             <p className={styles.muted}>
-              {loser.name} non c&apos;è mai riuscito · durata {fmtDuration(result.durationMs)}
+              {!bookedOutcome && `${loser.name} non c'è mai riuscito · `}durata{" "}
+              {fmtDuration(result.durationMs)}
             </p>
             <div className={styles.overlayActions}>
               <button type="button" className="btn btn-primary" onClick={replay}>
                 Rivedi
               </button>
-              <button type="button" className="btn btn-primary" onClick={newMatch}>
-                Nuovo incontro
-              </button>
+              {!isBooked && (
+                <button type="button" className="btn btn-primary" onClick={newMatch}>
+                  Nuovo incontro
+                </button>
+              )}
             </div>
           </div>
         )}
