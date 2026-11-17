@@ -1,5 +1,6 @@
 import { mulberry32, seedFromString } from "./rng";
 import { simulateMatch } from "../engine/matchEngine";
+import { simulateMultiMatch } from "../engine/multiMatchEngine";
 import { toWrestlerDef } from "../types/roster";
 import { crownChampion } from "./titles";
 import { advanceRivalry, resolveRivalry } from "./rivalry";
@@ -7,7 +8,6 @@ import {
   matchIssues,
   matchTypeById,
   multiManRating,
-  resolveMultiMatch,
   ruleFlavor,
 } from "./matchTypes";
 import type { MatchResult } from "../types/match";
@@ -210,11 +210,16 @@ export function runShow(input: RunShowInput): RunShowOutput {
       let sim: MatchResult | null = null;
 
       if (match.type === "tag" || match.type === "triple" || match.type === "fatal4") {
-        // Match a più atleti: risolti qui, in puro e deterministico.
-        const rng = mulberry32(seedFromString(`${matchSeed}:multi`));
-        const res = resolveMultiMatch(rng, match.type, participants);
-        winner = res.winner;
-        loser = res.loser;
+        // Match a più atleti: anche questi hanno il loro motore, con la
+        // timeline da ring (stesso determinismo del 1v1).
+        const res = simulateMultiMatch(
+          participants.map(toWrestlerDef),
+          matchSeed,
+          match.type
+        );
+        sim = res;
+        winner = byId.get(res.wrestlers[res.winner].id) ?? participants[0];
+        loser = byId.get(res.wrestlers[res.loser].id) ?? participants[participants.length - 1];
         summary = res.summary;
         rating = multiManRating(participants, {
           titlePrestige: title ? title.prestige : 0,
