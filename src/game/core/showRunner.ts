@@ -10,6 +10,7 @@ import {
   resolveMultiMatch,
   ruleFlavor,
 } from "./matchTypes";
+import type { MatchResult } from "../types/match";
 import type { Wrestler } from "../types/roster";
 import type { Championship } from "../types/titles";
 import type { Rivalry } from "../types/rivalry";
@@ -206,6 +207,7 @@ export function runShow(input: RunShowInput): RunShowOutput {
       let loser: Wrestler;
       let summary: string;
       let rating: number;
+      let sim: MatchResult | null = null;
 
       if (match.type === "tag" || match.type === "triple" || match.type === "fatal4") {
         // Match a più atleti: risolti qui, in puro e deterministico.
@@ -220,7 +222,7 @@ export function runShow(input: RunShowInput): RunShowOutput {
           ratingBonus: def.ratingBonus,
         });
       } else {
-        const sim = simulateMatch(
+        sim = simulateMatch(
           [toWrestlerDef(participants[0]), toWrestlerDef(participants[1])],
           matchSeed
         );
@@ -265,6 +267,7 @@ export function runShow(input: RunShowInput): RunShowOutput {
         seed: matchSeed,
         titleChange,
         defense,
+        sim,
       });
 
       if (rivalry) {
