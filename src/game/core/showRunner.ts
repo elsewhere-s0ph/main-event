@@ -219,7 +219,8 @@ export function runShow(input: RunShowInput): RunShowOutput {
         );
         sim = res;
         winner = byId.get(res.wrestlers[res.winner].id) ?? participants[0];
-        loser = byId.get(res.wrestlers[res.loser].id) ?? participants[participants.length - 1];
+        const loserIdx = res.loser ?? res.winner;
+        loser = byId.get(res.wrestlers[loserIdx].id) ?? participants[participants.length - 1];
         summary = res.summary;
         rating = multiManRating(participants, {
           titlePrestige: title ? title.prestige : 0,
