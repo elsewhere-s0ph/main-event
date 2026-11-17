@@ -434,3 +434,19 @@
   font-weight: 700;
   min-width: 52px;
 }
+
+.watchLink {
+  border: 1px solid var(--surface-2);
+  background: var(--surface);
+  color: var(--gold);
+  border-radius: 10px;
+  padding: 4px 10px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.watchLink:hover {
+  border-color: var(--gold);
+}
