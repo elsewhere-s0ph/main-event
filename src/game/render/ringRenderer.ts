@@ -1,4 +1,4 @@
-import type { EventKind, MatchEvent, MatchResult, Side, WrestlerDef } from "../types/match";
+import type { EventKind, MatchEvent, MatchResult, WrestlerDef } from "../types/match";
 import { CHOREO, MOVE_CHOREO, POSES, restingSample, sampleTrack, type PoseFrame, type PoseSample, type Track } from "./poses";
 
 // Renderer del ring isometrico: canvas 2D puro, scena logica 480×300
@@ -51,17 +51,22 @@ export interface WrestlerPos {
 }
 
 export interface SceneState {
-  pos: [WrestlerPos, WrestlerPos];
-  resting: [Resting | null, Resting | null];
+  pos: WrestlerPos[];
+  resting: (Resting | null)[];
 }
 
-export function createScene(): SceneState {
+// Posizione di casa di ogni slot sul mat: a due si parte dai corner interni
+// (identico al passato); con più atleti si distribuisce la fila sul mat.
+function slotX(i: number, count: number): number {
+  if (count <= 2) return MAT_CX + (i === 0 ? -SLOT_DX : SLOT_DX);
+  const spacing = Math.min(120, 230 / (count - 1));
+  return MAT_CX + (i - (count - 1) / 2) * spacing;
+}
+
+export function createScene(count: number = 2): SceneState {
   return {
-    pos: [
-      { x: MAT_CX - SLOT_DX, y: 0 },
-      { x: MAT_CX + SLOT_DX, y: 0 },
-    ],
-    resting: [null, null],
+    pos: Array.from({ length: count }, (_, i) => ({ x: slotX(i, count), y: 0 })),
+    resting: Array.from({ length: count }, () => null),
   };
 }
 
@@ -603,7 +608,7 @@ interface Desire {
 // coreografia ricopre il ruolo di "target" (chi incassa la situazione).
 const FLOOR_KINDS: ReadonlySet<EventKind> = new Set<EventKind>(["knockdown", "getup", "kickout"]);
 
-function trackFor(event: MatchEvent, side: Side): Track {
+function trackFor(event: MatchEvent, side: number): Track {
   // La coreografia dedicata della mossa (se esiste) precede quella per tipo.
   const specific = event.moveId ? MOVE_CHOREO[event.moveId] : undefined;
   const choreo = specific ?? CHOREO[event.kind];
@@ -632,28 +637,39 @@ export function drawFrame(
   drawRingBackground(ctx);
 
   const events = result.events;
+  const count = result.wrestlers.length;
   const active = findActive(events, tMs);
   const last = lastStarted(events, tMs);
 
+  // Controparte dell'evento: il bersaglio dichiarato nei match a più atleti,
+  // l'altro lato del ring nei 1v1 (comportamento invariato a due).
+  const counterpartOf = (e: MatchEvent): number => e.target ?? (e.actor === 0 ? 1 : 0);
+  const actorFlip = (e: MatchEvent): 1 | -1 => (counterpartOf(e) > e.actor ? 1 : -1);
+  const involvedIn = (e: MatchEvent, side: number): boolean =>
+    count === 2 || side === e.actor || (e.target !== undefined && side === e.target);
+
   // Aggiorna le pose di riposo memorizzate.
   if (last) {
-    for (const side of [0, 1] as const) {
+    const flip = actorFlip(last);
+    for (let side = 0; side < count; side++) {
+      if (!involvedIn(last, side)) continue;
       const track = trackFor(last, side);
       const rest = restingSample(track);
       if (rest) {
-        scene.resting[side] = { sample: rest, flip: last.actor === 0 ? 1 : -1 };
+        scene.resting[side] = { sample: rest, flip };
       }
     }
   }
 
-  const desires: [Desire, Desire] = [
-    { sample: null, flip: 1, follow: false },
-    { sample: null, flip: -1, follow: false },
-  ];
-  for (const side of [0, 1] as const) {
-    if (active) {
+  const desires: Desire[] = Array.from({ length: count }, (_, i) => ({
+    sample: null,
+    flip: (slotX(i, count) <= MAT_CX ? 1 : -1) as 1 | -1,
+    follow: false,
+  }));
+  for (let side = 0; side < count; side++) {
+    if (active && involvedIn(active, side)) {
       const track = trackFor(active, side);
-      const flip: 1 | -1 = active.actor === 0 ? 1 : -1;
+      const flip = actorFlip(active);
       const sample = sampleTrack(track, tMs - active.t);
       if (sample) {
         desires[side] = { sample, flip, follow: side === active.actor && !!track.follow };
@@ -668,13 +684,15 @@ export function drawFrame(
 
   const maxStepX = 0.16 * dtMs;
   const maxStepY = 0.22 * dtMs;
-  for (const side of [0, 1] as const) {
+  for (let side = 0; side < count; side++) {
     const d = desires[side];
     const pos = scene.pos[side];
-    const homeX = MAT_CX + (side === 0 ? -SLOT_DX : SLOT_DX);
+    const homeX = slotX(side, count);
     let targetX: number;
     if (d.follow) {
-      targetX = scene.pos[side === 0 ? 1 : 0].x + (d.sample ? d.sample.dx * d.flip : 0);
+      targetX =
+        scene.pos[counterpartOf(active as MatchEvent)].x +
+        (d.sample ? d.sample.dx * d.flip : 0);
     } else if (d.sample && d.sample.hold) {
       targetX = pos.x;
     } else {
@@ -689,10 +707,10 @@ export function drawFrame(
 
   drawRopes(ctx, true);
 
-  for (const side of [0, 1] as const) {
+  for (let side = 0; side < count; side++) {
     const d = desires[side];
     const def = result.wrestlers[side];
-    const facing = side === 0 ? 1 : -1;
+    const facing = slotX(side, count) <= MAT_CX ? 1 : -1;
     const frame = d.sample ? d.sample.frame : POSES.idle;
     drawWrestler(ctx, def, frame, scene.pos[side].x, scene.pos[side].y, facing, wallMs);
   }
